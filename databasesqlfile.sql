@@ -1,0 +1,1 @@
+modulemoduleidmodule_codemodule_gradeCREATE DATABASE academic_db;
