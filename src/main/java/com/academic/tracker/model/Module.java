@@ -1,6 +1,7 @@
 package com.academic.tracker.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 
 @Entity
 public class Module {
@@ -9,11 +10,25 @@ public class Module {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
+    @NotBlank(message = "Module code is required")
     private String ModuleCode;
+
+    @NotBlank(message = "Module name is required")
     private String ModuleName;
+
+    @Min(value = 1, message = "Module credits must be at least 1")
     private int ModuleCredits;
+
+    @NotBlank(message = "Module grade is required")
     private String ModuleGrade;
-    private int ModuleSemester;
+
+    @Min(value = 1, message = "Module semester must be at least 1")
+    private int moduleSemester;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     // Default constructor (required by JPA)
     public Module() {}
@@ -24,10 +39,17 @@ public class Module {
         this.ModuleName = moduleName;
         this.ModuleCredits = moduleCredits;
         this.ModuleGrade = moduleGrade;
-        this.ModuleSemester = moduleSemester;
+        this.moduleSemester = moduleSemester;
     }
 
     // Getters and Setters
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -43,6 +65,6 @@ public class Module {
     public String getModuleGrade() { return ModuleGrade; }
     public void setModuleGrade(String moduleGrade) { this.ModuleGrade = moduleGrade; }
 
-    public int getModuleSemester() { return ModuleSemester; }
-    public void setModuleSemester(int moduleSemester) { this.ModuleSemester = moduleSemester; }
+    public int getModuleSemester() { return moduleSemester; }
+    public void setModuleSemester(int moduleSemester) { this.moduleSemester = moduleSemester; }
 }
