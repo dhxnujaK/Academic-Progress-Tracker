@@ -2,6 +2,7 @@ package com.academic.tracker.model;
 
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 public class User {
@@ -17,6 +18,7 @@ public class User {
     private String email;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Module> modules;
 
     private String name;
@@ -30,6 +32,27 @@ public class User {
     private java.time.LocalDateTime lastLogin;
 
     private boolean isActive;
+
+    @Column(nullable = false)
+    private String password;
+
+    @Column(nullable = false)
+    private String batch;
+
+    @Column(nullable = false, unique = true)
+    private String universityRegNumber;
+
+    @Column(nullable = false)
+    private String alYear;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
+    public enum Role {
+        STUDENT,
+        ADMIN
+    }
 
     public User() {}
 
@@ -123,4 +146,19 @@ public class User {
     public void setActive(boolean active) {
         isActive = active;
     }
+
+    public String getPassword() { return password; }
+    public void setPassword(String password) { this.password = password; }
+
+    public String getBatch() { return batch; }
+    public void setBatch(String batch) { this.batch = batch; }
+
+    public String getUniversityRegNumber() { return universityRegNumber; }
+    public void setUniversityRegNumber(String universityRegNumber) { this.universityRegNumber = universityRegNumber; }
+
+    public String getAlYear() { return alYear; }
+    public void setAlYear(String alYear) { this.alYear = alYear; }
+
+    public Role getRole() { return role; }
+    public void setRole(Role role) { this.role = role; }
 }

@@ -1,5 +1,6 @@
 package com.academic.tracker.model;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.*;
 
@@ -12,16 +13,20 @@ public class Module {
 
     @Column(unique = true)
     @NotBlank(message = "Module code is required")
-    private String ModuleCode;
+    @JsonProperty("ModuleCode")
+    private String moduleCode;
 
     @NotBlank(message = "Module name is required")
-    private String ModuleName;
+    @JsonProperty("ModuleName")
+    private String moduleName;
 
     @Min(value = 1, message = "Module credits must be at least 1")
-    private int ModuleCredits;
+    @JsonProperty("ModuleCredits")
+    private int moduleCredits;
 
     @NotBlank(message = "Module grade is required")
-    private String ModuleGrade;
+    @JsonProperty("ModuleGrade")
+    private String moduleGrade;
 
     @Min(value = 1, message = "Module semester must be at least 1")
     private int moduleSemester;
@@ -35,10 +40,10 @@ public class Module {
 
     // Custom constructor (optional)
     public Module(String moduleCode, String moduleName, int moduleCredits, String moduleGrade, int moduleSemester) {
-        this.ModuleCode = moduleCode;
-        this.ModuleName = moduleName;
-        this.ModuleCredits = moduleCredits;
-        this.ModuleGrade = moduleGrade;
+        this.moduleCode = moduleCode;
+        this.moduleName = moduleName;
+        this.moduleCredits = moduleCredits;
+        this.moduleGrade = moduleGrade;
         this.moduleSemester = moduleSemester;
     }
 
@@ -53,17 +58,21 @@ public class Module {
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
-    public String getModuleCode() { return ModuleCode; }
-    public void setModuleCode(String moduleCode) { this.ModuleCode = moduleCode; }
+    @JsonProperty("ModuleCode")
+    public String getModuleCode() { return moduleCode; }
+    public void setModuleCode(String moduleCode) { this.moduleCode = moduleCode; }
 
-    public String getModuleName() { return ModuleName; }
-    public void setModuleName(String moduleName) { this.ModuleName = moduleName; }
+    @JsonProperty("ModuleName")
+    public String getModuleName() { return moduleName; }
+    public void setModuleName(String moduleName) { this.moduleName = moduleName; }
 
-    public int getModuleCredits() { return ModuleCredits; }
-    public void setModuleCredits(int moduleCredits) { this.ModuleCredits = moduleCredits; }
+    @JsonProperty("ModuleCredits")
+    public int getModuleCredits() { return moduleCredits; }
+    public void setModuleCredits(int moduleCredits) { this.moduleCredits = moduleCredits; }
 
-    public String getModuleGrade() { return ModuleGrade; }
-    public void setModuleGrade(String moduleGrade) { this.ModuleGrade = moduleGrade; }
+    @JsonProperty("ModuleGrade")
+    public String getModuleGrade() { return moduleGrade; }
+    public void setModuleGrade(String moduleGrade) { this.moduleGrade = moduleGrade; }
 
     public int getModuleSemester() { return moduleSemester; }
     public void setModuleSemester(int moduleSemester) { this.moduleSemester = moduleSemester; }

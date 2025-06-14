@@ -7,15 +7,32 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import com.academic.tracker.repository.UserRepository;
+import com.academic.tracker.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
 
 @Service
 public class ModuleService {
 
+    @Autowired
     private final ModuleRepository moduleRepo;
+    @Autowired
+    private UserRepository userRepository;  // ← Add this here
 
+    public Module saveModule(Module module) {
+        if (module.getUser() != null && module.getUser().getId() != null) {
+            User user = userRepository.findById(module.getUser().getId())
+                    .orElseThrow(() -> new RuntimeException("User not found"));
+            module.setUser(user);  // Re-attach fully managed User entity
+        } else {
+            throw new RuntimeException("User ID is required in request");
+        }
+        return moduleRepo.save(module);
+    }
     public ModuleService(ModuleRepository moduleRepo) {
         this.moduleRepo = moduleRepo;
     }
+
 
     public List<Module> getAllModules() {
         return moduleRepo.findAll();

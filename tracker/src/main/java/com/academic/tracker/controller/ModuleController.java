@@ -41,10 +41,8 @@ public class ModuleController {
 
     // POST a new module
     @PostMapping
-    public Module createModule(@RequestBody Module module, @RequestParam Long userId) {
-        User user = userRepo.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
-        module.setUser(user);
-        return moduleRepo.save(module);
+    public Module createModule(@RequestBody Module module) {
+        return moduleService.saveModule(module);
     }
 
     // DELETE a module by ID
