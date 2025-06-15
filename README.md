@@ -54,4 +54,12 @@ Developed as part of the **Web Application Development (EE4207)** module at the 
 | Charts       | Recharts (React)      |
 
 ---
+## 🗂️ Database Schema
+🧑 user – Registered users
+
+📘 module – Module details per semester
+
+⏲️ studysession – Logged study sessions
+
+---
 
