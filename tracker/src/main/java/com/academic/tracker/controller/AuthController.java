@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Optional;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.ResponseBody;
 
 @RestController
 @RequestMapping("/auth")
@@ -29,6 +30,7 @@ public class AuthController {
     }
 
     @PostMapping("/login")
+    @ResponseBody
     public JwtAuthResponse login(@RequestBody Map<String, String> request) {
         String identifier = request.get("identifier"); // email or username
         String password = request.get("password");

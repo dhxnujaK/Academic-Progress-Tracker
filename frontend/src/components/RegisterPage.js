@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import TopBar from './TopBar';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -41,12 +42,7 @@ const RegisterPage = () => {
 
   return (
     <>
-      <div className="w-full fixed top-0 left-0 bg-white shadow-md z-50">
-        <div className="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
-          <h1 className="text-xl font-bold text-blue-700 tracking-tight">TrackMate</h1>
-          <div className="text-sm text-gray-500">Your Study Partner</div>
-        </div>
-      </div>
+        <TopBar/>
       <div className="min-h-screen pt-24 bg-gradient-to-br from-cyan-100 to-blue-200 flex items-center justify-center px-4">
         <div className="bg-white p-8 rounded-xl shadow-xl w-full max-w-lg">
           <h2 className="text-3xl font-bold text-center text-blue-700 mb-6">Create Your Account</h2>
