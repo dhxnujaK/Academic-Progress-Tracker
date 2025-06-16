@@ -31,7 +31,7 @@ function App() {
 
                 <Routes>
                     <Route path="/" element={<HomePage />} />
-                    <Route path="/" element={<RegisterPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
                     <Route path="/tracker" element={
                         selectedSemester === null ? (
                             <SemesterList semesters={semesters} onSelect={handleSelectSemester} />
