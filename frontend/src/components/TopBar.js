@@ -36,6 +36,13 @@ const TopBar = () => {
         {showUserInfo && (
           <div className="flex items-center gap-4">
             <span className="text-sm text-gray-700">Hi, {username}</span>
+            <div
+              onClick={() => navigate('/profile')}
+              className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-full font-semibold cursor-pointer hover:ring-2 hover:ring-blue-400"
+              title="Profile"
+            >
+              {username?.charAt(0).toUpperCase()}
+            </div>
             <button
               onClick={handleLogout}
               className="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded text-sm"

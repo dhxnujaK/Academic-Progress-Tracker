@@ -17,9 +17,7 @@ public class User {
     @Column(unique = true, nullable = false)
     private String email;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @JsonIgnore
-    private List<Module> modules;
+
 
     private String name;
     private String university;
@@ -80,9 +78,7 @@ public class User {
     public String getEmail() { return email; }
     public void setEmail(String email) { this.email = email; }
 
-    public List<Module> getModules() { return modules; }
-    public void setModules(List<Module> modules) { this.modules = modules; }
-
+ 
     public String getName() {
         return name;
     }

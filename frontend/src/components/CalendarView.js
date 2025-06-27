@@ -3,6 +3,14 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const daysOfWeek = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
+const dailyGoalMinutes = 120;
+const mockStudyData = {
+  '2025-06-24': 30,
+  '2025-06-25': 90,
+  '2025-06-26': 150,
+  '2025-06-27': 200,
+};
+
 const CalendarView = ({ onDateSelect }) => {
   const today = new Date();
   const [currentDate, setCurrentDate] = useState(new Date());
@@ -15,6 +23,15 @@ const CalendarView = ({ onDateSelect }) => {
       hasAnimated.current = true;
     }
   }, []);
+
+  const getDayColor = (date) => {
+    const key = date.toISOString().split('T')[0];
+    const minutes = mockStudyData[key] || 0;
+    const ratio = Math.min(minutes / dailyGoalMinutes, 1);
+    if (ratio === 0) return '#ffffff'; // White for 0%
+    const lightness = 90 - ratio * 50;
+    return `hsl(221, 85%, ${lightness}%)`;
+  };
 
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
@@ -89,10 +106,16 @@ const CalendarView = ({ onDateSelect }) => {
               <div
                 key={idx}
                 onClick={() => dayNum && handleDateClick(dayNum)}
-                className={`cursor-pointer h-12 flex items-center justify-center rounded-md border text-sm
-                  ${isToday(dayNum) ? 'bg-blue-500 text-white font-bold' : ''}
-                  ${isSelected(dayNum) ? 'ring-2 ring-cyan-500' : ''}
-                  ${!isToday(dayNum) && !isSelected(dayNum) ? 'bg-white' : ''}`}
+                className={`cursor-pointer h-12 flex items-center justify-center rounded-md text-sm border transition duration-300 ease-in-out
+                  ${isToday(dayNum) ? 'text-white font-bold' : ''}
+                  ${isSelected(dayNum) ? 'ring-2 ring-cyan-500' : ''}`}
+                style={{
+                  backgroundColor: (() => {
+                    if (!dayNum) return '#fff';
+                    const date = new Date(year, month, dayNum);
+                    return getDayColor(date);
+                  })(),
+                }}
               >
                 {dayNum || ''}
               </div>

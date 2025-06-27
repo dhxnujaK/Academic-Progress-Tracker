@@ -14,7 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 @RestController
-@RequestMapping("/auth")
+@RequestMapping("/api/users")
 @CrossOrigin(origins = "*")
 public class AuthController {
 
@@ -38,7 +38,7 @@ public class AuthController {
         Optional<User> user = userService.authenticateUser(identifier, password);
         if (user.isPresent()) {
             String token = jwtService.generateToken(user.get());
-            return new JwtAuthResponse(token);
+            return new JwtAuthResponse(token, user.get().getUsername(), user.get().getRole().name());
         } else {
             throw new ResponseStatusException(
                 HttpStatus.UNAUTHORIZED, "Invalid credentials.");

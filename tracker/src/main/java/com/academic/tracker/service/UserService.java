@@ -37,8 +37,11 @@ public class UserService {
         if (userRepo.existsByUsername(user.getUsername())) {
             return "Username already taken.";
         }
+        // Ensure a valid role is set (default to USER if not provided)
+        if (user.getRole() == null) {
+            user.setRole(User.Role.STUDENT);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        user.setRole(User.Role.STUDENT);
         userRepo.save(user);
         return "User registered successfully.";
     }
