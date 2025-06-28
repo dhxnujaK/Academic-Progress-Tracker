@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 
 const SemesterRegistration = () => {
-    const [name, setName] = useState('');
+    const [number, setNumber] = useState('');
     const [startDate, setStartDate] = useState('');
     const [endDate, setEndDate] = useState('');
     const [message, setMessage] = useState('');
@@ -22,7 +22,7 @@ const SemesterRegistration = () => {
 
             const response = await axios.post(
                 'http://localhost:8080/api/semesters',
-                { name, startDate, endDate },
+                { number: parseInt(number), startDate, endDate },
                 {
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -30,8 +30,8 @@ const SemesterRegistration = () => {
                 }
             );
 
-            setMessage(`✅ Semester "${response.data.name}" registered successfully.`);
-            setName('');
+            setMessage(`✅ Semester ${response.data.number} registered successfully.`);
+            setNumber('');
             setStartDate('');
             setEndDate('');
         } catch (err) {
@@ -52,13 +52,13 @@ const SemesterRegistration = () => {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">Semester Name</label>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">Semester Number</label>
                         <input
-                            type="text"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
+                            type="number"
+                            value={number}
+                            onChange={(e) => setNumber(e.target.value)}
                             className="w-full p-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            placeholder="e.g., Semester 4"
+                            placeholder="e.g., 4"
                             required
                         />
                     </div>
