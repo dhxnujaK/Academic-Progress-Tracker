@@ -29,7 +29,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getEmail(); // or user.getUsername(), depending on your design
+        return user.getUsername();
     }
 
     @Override
@@ -54,5 +54,9 @@ public class CustomUserDetails implements UserDetails {
 
     public User getUser() {
         return user;
+    }
+
+    public Long getId() {
+        return user.getId();
     }
 }

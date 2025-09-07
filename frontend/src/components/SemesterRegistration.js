@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import axios from 'axios';
+import api from '../services/api';
 
 const SemesterRegistration = () => {
     const [number, setNumber] = useState('');
@@ -14,21 +14,11 @@ const SemesterRegistration = () => {
         setError('');
 
         try {
-            const token = localStorage.getItem('token');
-            if (!token) {
-                setError('User not authenticated. Please log in.');
-                return;
-            }
-
-            const response = await axios.post(
-                'http://localhost:8080/api/semesters',
-                { number: parseInt(number), startDate, endDate },
-                {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                    },
-                }
-            );
+            const response = await api.post('/semesters', {
+                number: parseInt(number),
+                startDate,
+                endDate,
+            });
 
             setMessage(`✅ Semester ${response.data.number} registered successfully.`);
             setNumber('');

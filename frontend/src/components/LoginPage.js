@@ -19,7 +19,9 @@ const LoginPage = () => {
     try {
       const res = await axios.post('http://localhost:8080/api/users/login', formData);
       const token = res.data.token;
+      console.log("🪪 Token received from backend:", token);
       localStorage.setItem('token', token);
+      console.log("🔐 Token from localStorage:", localStorage.getItem('token'));
       localStorage.setItem('username', formData.identifier);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       navigate('/landing');
