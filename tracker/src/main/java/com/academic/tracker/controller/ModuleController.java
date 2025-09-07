@@ -40,4 +40,23 @@ public class ModuleController {
                                              @RequestParam(required = false) Long semesterId) {
         return ResponseEntity.ok(service.listModules(principal.getId(), semesterId));
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Module> updateModule(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails principal,
+            @RequestBody @Valid ModuleRequest req
+    ) {
+        Module updated = service.updateModule(principal.getId(), id, req);
+        return ResponseEntity.ok(updated);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteModule(
+            @PathVariable Long id,
+            @AuthenticationPrincipal CustomUserDetails principal
+    ) {
+        service.deleteModule(principal.getId(), id);
+        return ResponseEntity.noContent().build();
+    }
 }

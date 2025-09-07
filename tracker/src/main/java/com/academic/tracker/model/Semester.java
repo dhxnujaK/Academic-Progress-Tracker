@@ -1,9 +1,14 @@
 package com.academic.tracker.model;
 
 import jakarta.persistence.*;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 import java.time.LocalDate;
 
 @Entity
+@Table(uniqueConstraints = {
+    @UniqueConstraint(columnNames = {"user_id", "number"})
+})
 public class Semester {
 
     @Id

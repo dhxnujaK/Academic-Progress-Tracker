@@ -1,9 +1,20 @@
 package com.academic.tracker.model;
 
 import jakarta.persistence.*;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 @Entity
-@Table(name = "module")
+@Table(
+    name = "module",
+    uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "code"}),
+    indexes = {
+        @Index(name = "idx_module_user", columnList = "user_id"),
+        @Index(name = "idx_module_semester", columnList = "semester_id"),
+        @Index(name = "idx_module_semnum", columnList = "module_semester")
+    }
+)
+
 public class Module {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -19,12 +30,14 @@ public class Module {
     @Column(name = "module_credits", nullable = false)
     private Integer credits;   // use Integer, not primitive
 
-    @ManyToOne(optional = false)
+    @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
+    @JsonIgnore
     private User user;
 
-    @ManyToOne(optional = true)
+    @ManyToOne(optional = true, fetch = FetchType.LAZY)
     @JoinColumn(name = "semester_id")
+    @JsonIgnore
     private Semester semester;
 
     // Legacy denormalized column required by DB schema
@@ -45,7 +58,10 @@ public class Module {
     public String getName() { return name; }
     public void setName(String name) { this.name = name; }
 
+    @JsonProperty("credits")
     public Integer getCredits() { return credits; }
+
+    @JsonProperty("credits")
     public void setCredits(Integer credits) { this.credits = credits; }
 
     public User getUser() { return user; }
@@ -57,6 +73,11 @@ public class Module {
         if (semester != null) {
             this.semesterNumber = semester.getNumber();
         }
+    }
+
+    @JsonProperty("semesterId")
+    public Long getSemesterId() {
+        return semester != null ? semester.getId() : null;
     }
 
     public Integer getSemesterNumber() { return semesterNumber; }

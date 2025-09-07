@@ -1,9 +1,11 @@
-
 package com.academic.tracker.dto;
 
 import java.time.LocalDate;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.AssertTrue;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 public class SemesterRequest {
 
@@ -11,12 +13,15 @@ public class SemesterRequest {
     private String name; // optional from client; service can default if null/blank
 
     @NotNull(message = "number is required")
+    @Min(value = 1, message = "Semester number must be at least 1")
     private Integer number;
 
     @NotNull(message = "startDate is required")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate startDate;
 
     @NotNull(message = "endDate is required")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate endDate;
 
     public String getName() {
@@ -49,5 +54,13 @@ public class SemesterRequest {
 
     public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
+    }
+
+    @AssertTrue(message = "startDate must be before endDate")
+    public boolean isDatesValid() {
+        if (startDate == null || endDate == null) {
+            return true;
+        }
+        return startDate.isBefore(endDate);
     }
 }

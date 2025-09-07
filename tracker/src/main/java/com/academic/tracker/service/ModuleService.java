@@ -9,10 +9,12 @@ import com.academic.tracker.repository.SemesterRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 @Service
+@Transactional(readOnly = true)
 public class ModuleService {
     private final ModuleRepository modules;
     private final SemesterRepository semesters;
@@ -22,6 +24,7 @@ public class ModuleService {
         this.semesters = semesters;
     }
 
+    @Transactional
     public Module registerModule(Long userId, ModuleRequest req) {
         // Validate required fields early
         if (req.getCode() == null || req.getCode().trim().isEmpty()) {
@@ -75,4 +78,62 @@ public class ModuleService {
         }
         return modules.findByUser_Id(userId);
     }
+
+    @Transactional
+    public Module updateModule(Long userId, Long moduleId, ModuleRequest req) {
+        // Load existing module scoped to current user
+        Module existing = modules.findByIdAndUser_Id(moduleId, userId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "module not found"));
+
+        // Validate and update code (with duplicate check per user)
+        if (req.getCode() != null) {
+            String newCode = req.getCode().trim();
+            if (newCode.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "code cannot be empty");
+            }
+            if (modules.existsByUser_IdAndCodeAndIdNot(userId, newCode, existing.getId())) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, "Module code already exists for this user");
+            }
+            existing.setCode(newCode);
+        }
+
+        // Validate and update name
+        if (req.getName() != null) {
+            String newName = req.getName().trim();
+            if (newName.isEmpty()) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "name cannot be empty");
+            }
+            existing.setName(newName);
+        }
+
+        // Validate and update credits
+        // If ModuleRequest.getCredits() is a primitive int, missing JSON will bind to 0.
+        // We treat > 0 as an explicit update; otherwise we leave it unchanged.
+        if (req.getCredits() > 0) {
+            existing.setCredits(req.getCredits());
+        }
+
+        // Update semester if provided
+        if (req.getSemesterId() != null) {
+            Semester s = semesters.findById(req.getSemesterId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "semesterId not found"));
+            if (!s.getUser().getId().equals(userId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "semesterId does not belong to the current user");
+            }
+            existing.setSemester(s);
+            existing.setSemesterNumber(s.getNumber());
+        }
+
+        return modules.save(existing);
+    }
+
+    @Transactional
+    public void deleteModule(Long userId, Long moduleId) {
+        long deleted = modules.deleteByIdAndUser_Id(moduleId, userId);
+        if (deleted == 0) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "module not found");
+        }
+    }
+
+
 }
