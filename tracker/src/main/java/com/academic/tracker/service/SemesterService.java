@@ -15,6 +15,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
+
 @Service
 public class SemesterService {
 
@@ -30,6 +31,9 @@ public class SemesterService {
     @Transactional
     public Semester registerSemester(Long userId, SemesterRequest req) {
         validateDates(req.getStartDate(), req.getEndDate());
+
+        // Ensure no time overlap with any other semester for this user
+        ensureNoOverlap(userId, req.getStartDate(), req.getEndDate(), null);
 
         // Prevent duplicate semester number per user
         if (req.getNumber() != null && semesterRepo.existsByUserIdAndNumber(userId, req.getNumber())) {
@@ -63,10 +67,17 @@ public class SemesterService {
      */
     @Transactional
     public Semester updateSemester(Long userId, Long semesterId, SemesterRequest req) {
-        validateDates(req.getStartDate(), req.getEndDate());
+        // date validation handled after computing effective dates
 
         Semester existing = semesterRepo.findByIdAndUserId(semesterId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Semester not found or not owned by user"));
+
+        // Determine the effective date range after this update
+        LocalDate effectiveStart = (req.getStartDate() != null) ? req.getStartDate() : existing.getStartDate();
+        LocalDate effectiveEnd   = (req.getEndDate() != null) ? req.getEndDate()   : existing.getEndDate();
+        validateDates(effectiveStart, effectiveEnd);
+        // Ensure the new period does not overlap with other semesters for this user
+        ensureNoOverlap(userId, effectiveStart, effectiveEnd, existing.getId());
 
         // If number changed, ensure uniqueness (exclude current id)
         if (req.getNumber() != null && !Objects.equals(req.getNumber(), existing.getNumber())) {
@@ -129,6 +140,33 @@ public class SemesterService {
                 .filter(sem -> sem.getStartDate() != null && sem.getEndDate() != null)
                 .filter(sem -> !today.isBefore(sem.getStartDate()) && !today.isAfter(sem.getEndDate()))
                 .findFirst();
+    }
+
+    /**
+     * Returns true if two date ranges [aStart, aEnd] and [bStart, bEnd] overlap (inclusive).
+     */
+    private boolean overlaps(LocalDate aStart, LocalDate aEnd, LocalDate bStart, LocalDate bEnd) {
+        if (aStart == null || aEnd == null || bStart == null || bEnd == null) return false;
+        return !(aEnd.isBefore(bStart) || bEnd.isBefore(aStart));
+    }
+
+    /**
+     * Throws IllegalArgumentException if the given range overlaps any semester of the user.
+     * When excludeId is provided, that semester is ignored (useful for updates).
+     */
+    private void ensureNoOverlap(Long userId, LocalDate start, LocalDate end, Long excludeId) {
+        if (start == null || end == null) return; // let bean validation handle null if required
+        List<Semester> semesters = semesterRepo.findByUserIdOrderByNumberAsc(userId);
+        for (Semester s : semesters) {
+            if (excludeId != null && Objects.equals(s.getId(), excludeId)) continue;
+            if (s.getStartDate() == null || s.getEndDate() == null) continue;
+            if (overlaps(start, end, s.getStartDate(), s.getEndDate())) {
+                String name = (s.getName() != null) ? s.getName() : ("Semester " + s.getNumber());
+                throw new IllegalArgumentException(
+                        "Semester period overlaps with existing " + name +
+                        " (" + s.getStartDate() + " to " + s.getEndDate() + ")");
+            }
+        }
     }
 
     private void validateDates(LocalDate start, LocalDate end) {

@@ -18,6 +18,7 @@ const LandingPage = () => {
   const [elapsed, setElapsed] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
   const [isTimerActive, setIsTimerActive] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const timerSectionRef = useRef(null);
 
   useEffect(() => {
@@ -32,11 +33,12 @@ const LandingPage = () => {
       });
       setModules(res.data);
     } catch (err) {
-      console.error('Error fetching modules:', err);
+      console.error('Error fetching modules for active semester:', err);
     }
   };
 
   const startTimer = () => {
+    if (!selectedModuleId) return; // guard
     const start = new Date();
     setStartTime(start);
     const id = setInterval(() => {
@@ -46,30 +48,34 @@ const LandingPage = () => {
     setIsTimerActive(true);
     setTimeout(() => {
       timerSectionRef.current?.scrollIntoView({ behavior: 'smooth' });
-    }, 100); // slight delay to ensure rendering
+    }, 100);
   };
 
   const stopTimer = async () => {
     clearInterval(intervalId);
     const endTime = new Date();
     const token = localStorage.getItem('token');
+    setIsSaving(true);
     try {
       await axios.post(
         'http://localhost:8080/api/study-sessions',
         {
           moduleId: selectedModuleId,
-          startTime: startTime.toISOString(),
+          startTime: startTime?.toISOString(),
           endTime: endTime.toISOString()
         },
         { headers: { Authorization: `Bearer ${token}` } }
       );
     } catch (err) {
       console.error('Failed to save study session:', err);
+      // optional: show a toast/alert
+    } finally {
+      setIsSaving(false);
+      setStartTime(null);
+      setElapsed(0);
+      setIntervalId(null);
+      setIsTimerActive(false);
     }
-    setStartTime(null);
-    setElapsed(0);
-    setIntervalId(null);
-    setIsTimerActive(false);
   };
 
   const formatTime = (sec) => {
@@ -103,19 +109,32 @@ const LandingPage = () => {
               <div className="bg-white rounded-2xl shadow-md p-6 text-center space-y-3">
                 <h3 className="text-lg font-semibold text-gray-700 mb-2">Study Timer</h3>
                 <select
-                  className="w-full border px-2 py-1 rounded text-sm"
+                  className="w-full border px-3 py-2 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white disabled:opacity-60"
                   value={selectedModuleId}
                   onChange={(e) => setSelectedModuleId(e.target.value)}
+                  aria-label="Choose a module to start timing"
                 >
-                  <option value="">Select Module</option>
-                  {modules.map((mod) => (
-                    <option key={mod.id} value={mod.id}>{mod.name}</option>
-                  ))}
+                  <option value="" disabled>
+                    — Select a module from your active semester —
+                  </option>
+                  {modules && modules.length > 0 ? (
+                    modules.map((mod) => (
+                      <option key={mod.id} value={mod.id}>
+                        {mod.name}{mod.code ? ` (${mod.code})` : ''}{mod.credits ? ` • ${mod.credits} cr` : ''}
+                      </option>
+                    ))
+                  ) : (
+                    <option value="" disabled>
+                      No modules found for the active semester
+                    </option>
+                  )}
                 </select>
                 <button
                   onClick={startTimer}
-                  className="bg-green-600 hover:bg-green-700 text-white px-4 py-1 rounded text-sm w-full"
-                  // disabled = {!selectedModuleId}
+                  className="bg-green-600 hover:bg-green-700 disabled:bg-green-300 disabled:cursor-not-allowed text-white px-4 py-2 rounded-lg text-sm w-full transition"
+                  disabled={!selectedModuleId}
+                  aria-disabled={!selectedModuleId}
+                  title={!selectedModuleId ? 'Select a module to start timing' : 'Start timing your study session'}
                 >
                   Start
                 </button>
@@ -197,9 +216,10 @@ const LandingPage = () => {
             </p>
             <button
               onClick={stopTimer}
-              className="mt-6 bg-red-600 hover:bg-red-700 px-8 py-3 rounded-full text-white font-semibold text-lg transition shadow-lg tracking-wide"
+              disabled={isSaving}
+              className="mt-6 bg-red-600 hover:bg-red-700 disabled:bg-red-300 disabled:cursor-wait px-8 py-3 rounded-full text-white font-semibold text-lg transition shadow-lg tracking-wide"
             >
-              Stop
+              {isSaving ? 'Saving…' : 'Stop'}
             </button>
           </div>
         )}
