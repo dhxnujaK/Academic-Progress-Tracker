@@ -44,6 +44,10 @@ public class Module {
     @Column(name = "module_semester", nullable = false)
     private Integer semesterNumber = 0; // default to 0 to satisfy NOT NULL
 
+    // Optional letter grade for GPA calculations (ex: A+, A, A-, B+, ...)
+    @Column(name = "module_grade", length = 8)
+    private String grade;
+
 
     public Module() {}
     public Module(Long id) { this.id = id; }
@@ -82,6 +86,9 @@ public class Module {
 
     public Integer getSemesterNumber() { return semesterNumber; }
     public void setSemesterNumber(Integer semesterNumber) { this.semesterNumber = semesterNumber; }
+
+    public String getGrade() { return grade; }
+    public void setGrade(String grade) { this.grade = grade; }
 
     @PrePersist
     @PreUpdate

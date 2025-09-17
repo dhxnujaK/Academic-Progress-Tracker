@@ -12,6 +12,7 @@ import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.time.LocalDate;
 
 @Service
 @Transactional(readOnly = true)
@@ -54,6 +55,10 @@ public class ModuleService {
         m.setCode(req.getCode().trim());
         m.setName(req.getName().trim());
         m.setCredits(credits);
+        if (req.getGrade() != null) {
+            String g = req.getGrade().trim().toUpperCase();
+            if (!g.isEmpty()) m.setGrade(g);
+        }
 
         if (req.getSemesterId() != null) {
             Semester s = semesters.findById(req.getSemesterId())
@@ -77,6 +82,16 @@ public class ModuleService {
             return modules.findByUser_IdAndSemester_Id(userId, semesterId);
         }
         return modules.findByUser_Id(userId);
+    }
+
+    public List<Module> listModulesForCurrentSemester(Long userId) {
+        LocalDate today = LocalDate.now();
+        return semesters.findByUserIdOrderByNumberAsc(userId).stream()
+                .filter(sem -> sem.getStartDate() != null && sem.getEndDate() != null)
+                .filter(sem -> !today.isBefore(sem.getStartDate()) && !today.isAfter(sem.getEndDate()))
+                .findFirst()
+                .map(sem -> modules.findByUser_IdAndSemester_IdOrderByNameAsc(userId, sem.getId()))
+                .orElse(java.util.Collections.emptyList());
     }
 
     @Transactional
@@ -122,6 +137,12 @@ public class ModuleService {
             }
             existing.setSemester(s);
             existing.setSemesterNumber(s.getNumber());
+        }
+
+        // Update grade if provided
+        if (req.getGrade() != null) {
+            String g = req.getGrade().trim().toUpperCase();
+            existing.setGrade(g.isEmpty() ? null : g);
         }
 
         return modules.save(existing);

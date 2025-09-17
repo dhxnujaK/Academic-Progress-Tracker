@@ -20,4 +20,11 @@ public interface ModuleRepository extends JpaRepository<Module, Long> {
     boolean existsByUser_IdAndCodeAndIdNot(Long userId, String code, Long excludeId);
     List<Module> findByUser_IdAndSemester_IdOrderByNameAsc(Long userId, Long semesterId);
     long countBySemester_Id(Long semesterId);
+
+    // When a semester's number changes, keep the denormalized column in sync
+    @Modifying
+    @Transactional
+    @org.springframework.data.jpa.repository.Query("update Module m set m.semesterNumber = :newNumber where m.semester.id = :semesterId")
+    int updateSemesterNumberForSemester(@org.springframework.data.repository.query.Param("semesterId") Long semesterId,
+                                        @org.springframework.data.repository.query.Param("newNumber") Integer newNumber);
 }

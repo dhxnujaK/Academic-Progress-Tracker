@@ -31,7 +31,8 @@ public class ModuleController {
                 "code", saved.getCode(),
                 "name", saved.getName(),
                 "credits", saved.getCredits(),
-                "semesterId", saved.getSemester() != null ? saved.getSemester().getId() : null
+                "semesterId", saved.getSemester() != null ? saved.getSemester().getId() : null,
+                "grade", saved.getGrade()
         ));
     }
 
@@ -41,11 +42,18 @@ public class ModuleController {
         return ResponseEntity.ok(service.listModules(principal.getId(), semesterId));
     }
 
+    @GetMapping("/current-semester")
+    public ResponseEntity<List<Module>> listForCurrentSemester(
+            @AuthenticationPrincipal CustomUserDetails principal
+    ) {
+        return ResponseEntity.ok(service.listModulesForCurrentSemester(principal.getId()));
+    }
+
     @PutMapping("/{id}")
     public ResponseEntity<Module> updateModule(
             @PathVariable Long id,
             @AuthenticationPrincipal CustomUserDetails principal,
-            @RequestBody @Valid ModuleRequest req
+            @RequestBody ModuleRequest req
     ) {
         Module updated = service.updateModule(principal.getId(), id, req);
         return ResponseEntity.ok(updated);

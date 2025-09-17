@@ -80,26 +80,40 @@ public class SemesterService {
         ensureNoOverlap(userId, effectiveStart, effectiveEnd, existing.getId());
 
         // If number changed, ensure uniqueness (exclude current id)
-        if (req.getNumber() != null && !Objects.equals(req.getNumber(), existing.getNumber())) {
+        boolean numberChanged = req.getNumber() != null && !Objects.equals(req.getNumber(), existing.getNumber());
+        if (numberChanged) {
             if (semesterRepo.existsByUserIdAndNumberAndIdNot(userId, req.getNumber(), existing.getId())) {
                 throw new IllegalArgumentException("Semester number " + req.getNumber() + " already exists for this user");
             }
             existing.setNumber(req.getNumber());
         }
 
-        // If name provided and changed, ensure uniqueness (exclude current id)
+        // If explicit name provided and changed, ensure uniqueness (exclude current id)
         if (req.getName() != null && !req.getName().isBlank()) {
             String newName = req.getName().trim();
             if (!newName.equals(existing.getName()) && semesterRepo.existsByUserIdAndNameAndIdNot(userId, newName, existing.getId())) {
                 throw new IllegalArgumentException("Semester name '" + newName + "' already exists for this user");
             }
             existing.setName(newName);
+        } else if (numberChanged) {
+            // If number changed and no custom name provided, keep default naming in sync
+            String currentName = existing.getName();
+            if (currentName == null || currentName.matches("^Semester\\s+\\d+$")) {
+                existing.setName("Semester " + req.getNumber());
+            }
         }
 
         if (req.getStartDate() != null) existing.setStartDate(req.getStartDate());
         if (req.getEndDate() != null) existing.setEndDate(req.getEndDate());
 
-        return semesterRepo.save(existing);
+        Semester saved = semesterRepo.save(existing);
+
+        // Keep modules' denormalized semester number in sync if the number changed
+        if (numberChanged) {
+            moduleRepo.updateSemesterNumberForSemester(saved.getId(), saved.getNumber());
+        }
+
+        return saved;
     }
 
     /**

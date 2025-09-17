@@ -7,6 +7,7 @@ import HomePage from './components/HomePage';
 import ModuleRegistration from './components/ModuleRegistration';
 import SemesterRegistration from './components/SemesterRegistration';
 import UserProfilePage from "./components/UserProfilePage";
+import GradeManager from "./components/GradeManager";
 
 
 function App() {
@@ -21,6 +22,7 @@ function App() {
                     <Route path="/register-module" element={<ModuleRegistration />} />
                     <Route path= "/register-semester" element={<SemesterRegistration />} />
                     <Route path="/profile" element={<UserProfilePage />} />
+                    <Route path="/grades" element={<GradeManager />} />
                 </Routes>
             </div>
         </Router>
