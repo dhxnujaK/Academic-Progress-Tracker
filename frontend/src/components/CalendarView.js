@@ -1,11 +1,10 @@
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-// Monday-first labels
+// Days of the week starting from Monday
 const daysOfWeek = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-// Optional props: pass study heatmap in ISO keys and a goal in minutes
-// Example: studyData = { '2025-06-25': 120, ... }
+
 const CalendarView = ({ onDateSelect, studyData = {}, dailyGoalMinutes = 120 }) => {
   const today = useMemo(() => new Date(), []);
   const [currentDate, setCurrentDate] = useState(() => new Date());
@@ -25,12 +24,11 @@ const CalendarView = ({ onDateSelect, studyData = {}, dailyGoalMinutes = 120 }) 
   };
 
   const startOfMonth = new Date(year, month, 1);
-  // Normalize weekday to Monday=0 .. Sunday=6
   const toMon0 = (d) => (d + 6) % 7;
   const startWeekday = toMon0(startOfMonth.getDay());
   const endOfMonth = new Date(year, month + 1, 0);
   const daysInMonth = endOfMonth.getDate();
-  const totalCells = startWeekday + daysInMonth; // only enough to show current month
+  const totalCells = startWeekday + daysInMonth; 
   const firstCellDate = new Date(year, month, 1 - startWeekday);
   const cells = Array.from({ length: totalCells }, (_, i) => {
     const d = new Date(firstCellDate);
@@ -50,7 +48,7 @@ const CalendarView = ({ onDateSelect, studyData = {}, dailyGoalMinutes = 120 }) 
     selectedDate.getMonth() === d.getMonth() &&
     selectedDate.getFullYear() === d.getFullYear();
 
-  // Heat color based on study minutes vs goal (soft blue scale)
+  // Heat color based on study minutes vs goal 
   const heatColor = (d) => {
     if (!d) return '#ffffff';
     const key = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()))
@@ -59,7 +57,7 @@ const CalendarView = ({ onDateSelect, studyData = {}, dailyGoalMinutes = 120 }) 
     const minutes = studyData[key] || 0;
     const ratio = Math.max(0, Math.min(minutes / dailyGoalMinutes, 1));
     if (ratio === 0) return '#ffffff';
-    const lightness = 95 - ratio * 50; // 95% -> 45%
+    const lightness = 95 - ratio * 50; 
     return `hsl(221 85% ${lightness}%)`;
   };
 
