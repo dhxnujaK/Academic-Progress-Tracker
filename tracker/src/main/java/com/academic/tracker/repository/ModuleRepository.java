@@ -21,7 +21,7 @@ public interface ModuleRepository extends JpaRepository<Module, Long> {
     List<Module> findByUser_IdAndSemester_IdOrderByNameAsc(Long userId, Long semesterId);
     long countBySemester_Id(Long semesterId);
 
-    // When a semester's number changes, keep the denormalized column in sync
+ 
     @Modifying
     @Transactional
     @org.springframework.data.jpa.repository.Query("update Module m set m.semesterNumber = :newNumber where m.semester.id = :semesterId")

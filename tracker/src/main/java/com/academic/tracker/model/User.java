@@ -3,6 +3,7 @@ package com.academic.tracker.model;
 import jakarta.persistence.*;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import java.time.LocalDate;
 
 @Entity
 public class User {
@@ -34,6 +35,10 @@ public class User {
     private java.time.LocalDateTime lastLogin;
 
     private boolean isActive;
+
+    private String telephone;
+
+    private LocalDate dob;
 
     @Column(nullable = false)
     private String password;
@@ -146,6 +151,12 @@ public class User {
     public void setActive(boolean active) {
         isActive = active;
     }
+
+    public String getTelephone() { return telephone; }
+    public void setTelephone(String telephone) { this.telephone = telephone; }
+
+    public LocalDate getDob() { return dob; }
+    public void setDob(LocalDate dob) { this.dob = dob; }
 
     public String getPassword() { return password; }
     public void setPassword(String password) { this.password = password; }

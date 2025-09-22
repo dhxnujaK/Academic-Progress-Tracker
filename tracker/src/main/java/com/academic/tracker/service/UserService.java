@@ -3,7 +3,7 @@ package com.academic.tracker.service;
 import com.academic.tracker.model.User;
 import com.academic.tracker.repository.UserRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.security.crypto.password.PasswordEncoder; // ← use interface
+import org.springframework.security.crypto.password.PasswordEncoder; 
 import java.util.Optional;
 import java.util.List;
 
@@ -11,7 +11,7 @@ import java.util.List;
 public class UserService {
 
     private final UserRepository userRepo;
-    private final PasswordEncoder passwordEncoder; // ← interface, not BCrypt
+    private final PasswordEncoder passwordEncoder; 
 
     public UserService(UserRepository userRepo, PasswordEncoder passwordEncoder) {
         this.userRepo = userRepo;
@@ -37,7 +37,7 @@ public class UserService {
         if (userRepo.existsByUsername(user.getUsername())) {
             return "Username already taken.";
         }
-        // Ensure a valid role is set (default to STUDENT if not provided)
+        
         if (user.getRole() == null) {
             user.setRole(User.Role.STUDENT);
         }

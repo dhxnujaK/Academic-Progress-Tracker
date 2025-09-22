@@ -31,7 +31,6 @@ public class StudySession {
     @Column(name = "end_time", nullable = false)
     private LocalDateTime endTime;
 
-    // Some existing databases have this NOT NULL column – map and populate it
     @Column(name = "duration_in_minutes", nullable = false)
     private Integer durationInMinutes = 0;
 

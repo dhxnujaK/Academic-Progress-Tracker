@@ -16,14 +16,14 @@ public class ModuleRequest {
     @Max(value = 30, message = "credits seems too large")
     private int credits;
 
-    // optional – attach to a semester if provided
+
     private Long semesterId;
 
-    // optional grade like A+, A, A-, B+, ... or empty
+
     @Pattern(regexp = "(^$)|(^[A-D][+-]?$)|(^F$)|(^I$)|(^S$)|(^U$)", message = "invalid grade")
     private String grade;
 
-    // getters/setters
+    // getters and setters
     public String getCode() { return code; }
     public void setCode(String code) { this.code = code; }
 

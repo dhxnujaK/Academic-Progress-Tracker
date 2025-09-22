@@ -10,7 +10,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 public class SemesterRequest {
 
     @Size(min = 1, max = 255, message = "Name must be between 1 and 255 characters")
-    private String name; // optional from client; service can default if null/blank
+    private String name; 
 
     @NotNull(message = "number is required")
     @Min(value = 1, message = "Semester number must be at least 1")

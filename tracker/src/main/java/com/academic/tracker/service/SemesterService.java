@@ -25,9 +25,7 @@ public class SemesterService {
     @Autowired
     private ModuleRepository moduleRepo;
 
-    /**
-     * Create/register a new semester for a user with duplicate/validation checks.
-     */
+  
     @Transactional
     public Semester registerSemester(Long userId, SemesterRequest req) {
         validateDates(req.getStartDate(), req.getEndDate());
@@ -40,7 +38,6 @@ public class SemesterService {
             throw new IllegalArgumentException("Semester number " + req.getNumber() + " already exists for this user");
         }
 
-        // Optional: prevent duplicate name per user if a name is supplied
         if (req.getName() != null && !req.getName().isBlank()) {
             String trimmed = req.getName().trim();
             if (semesterRepo.existsByUserIdAndName(userId, trimmed)) {
@@ -62,24 +59,21 @@ public class SemesterService {
         return semesterRepo.save(semester);
     }
 
-    /**
-     * Update an existing semester owned by the user.
-     */
+    
     @Transactional
     public Semester updateSemester(Long userId, Long semesterId, SemesterRequest req) {
-        // date validation handled after computing effective dates
+        
 
         Semester existing = semesterRepo.findByIdAndUserId(semesterId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("Semester not found or not owned by user"));
 
-        // Determine the effective date range after this update
+        
         LocalDate effectiveStart = (req.getStartDate() != null) ? req.getStartDate() : existing.getStartDate();
         LocalDate effectiveEnd   = (req.getEndDate() != null) ? req.getEndDate()   : existing.getEndDate();
         validateDates(effectiveStart, effectiveEnd);
-        // Ensure the new period does not overlap with other semesters for this user
         ensureNoOverlap(userId, effectiveStart, effectiveEnd, existing.getId());
 
-        // If number changed, ensure uniqueness (exclude current id)
+        
         boolean numberChanged = req.getNumber() != null && !Objects.equals(req.getNumber(), existing.getNumber());
         if (numberChanged) {
             if (semesterRepo.existsByUserIdAndNumberAndIdNot(userId, req.getNumber(), existing.getId())) {
@@ -88,7 +82,6 @@ public class SemesterService {
             existing.setNumber(req.getNumber());
         }
 
-        // If explicit name provided and changed, ensure uniqueness (exclude current id)
         if (req.getName() != null && !req.getName().isBlank()) {
             String newName = req.getName().trim();
             if (!newName.equals(existing.getName()) && semesterRepo.existsByUserIdAndNameAndIdNot(userId, newName, existing.getId())) {
@@ -96,7 +89,6 @@ public class SemesterService {
             }
             existing.setName(newName);
         } else if (numberChanged) {
-            // If number changed and no custom name provided, keep default naming in sync
             String currentName = existing.getName();
             if (currentName == null || currentName.matches("^Semester\\s+\\d+$")) {
                 existing.setName("Semester " + req.getNumber());
@@ -108,7 +100,6 @@ public class SemesterService {
 
         Semester saved = semesterRepo.save(existing);
 
-        // Keep modules' denormalized semester number in sync if the number changed
         if (numberChanged) {
             moduleRepo.updateSemesterNumberForSemester(saved.getId(), saved.getNumber());
         }
@@ -116,11 +107,7 @@ public class SemesterService {
         return saved;
     }
 
-    /**
-     * Delete a semester if owned by the user.
-     * Guards against FK violations: refuses deletion when modules exist.
-     * Returns true if deleted, false if not found.
-     */
+  
     @Transactional
     public boolean deleteSemester(Long userId, Long semesterId) {
         Optional<Semester> opt = semesterRepo.findByIdAndUserId(semesterId, userId);
@@ -128,14 +115,11 @@ public class SemesterService {
             return false;
         }
 
-        // Block deletion if any modules are linked to this semester
         long moduleCount = moduleRepo.countBySemester_Id(semesterId);
         if (moduleCount > 0) {
             throw new IllegalStateException("Cannot delete semester: it has " + moduleCount + " registered module(s). Remove them first.");
         }
 
-        // Use entity delete inside transaction rather than a derived delete query
-        // to avoid 'No EntityManager with actual transaction' issues.
         Semester toDelete = opt.get();
         semesterRepo.delete(toDelete);
         return true;
@@ -143,7 +127,6 @@ public class SemesterService {
 
     @Transactional(readOnly = true)
     public List<Semester> getAllSemesters(Long userId) {
-        // Return ordered by number (ascending) for consistent UI display
         return semesterRepo.findByUserIdOrderByNumberAsc(userId);
     }
 
@@ -156,18 +139,12 @@ public class SemesterService {
                 .findFirst();
     }
 
-    /**
-     * Returns true if two date ranges [aStart, aEnd] and [bStart, bEnd] overlap (inclusive).
-     */
+
     private boolean overlaps(LocalDate aStart, LocalDate aEnd, LocalDate bStart, LocalDate bEnd) {
         if (aStart == null || aEnd == null || bStart == null || bEnd == null) return false;
         return !(aEnd.isBefore(bStart) || bEnd.isBefore(aStart));
     }
 
-    /**
-     * Throws IllegalArgumentException if the given range overlaps any semester of the user.
-     * When excludeId is provided, that semester is ignored (useful for updates).
-     */
     private void ensureNoOverlap(Long userId, LocalDate start, LocalDate end, Long excludeId) {
         if (start == null || end == null) return; // let bean validation handle null if required
         List<Semester> semesters = semesterRepo.findByUserIdOrderByNumberAsc(userId);

@@ -51,7 +51,7 @@ public class StudySessionController {
     @GetMapping("/by-day")
     public ResponseEntity<?> byDay(
             @AuthenticationPrincipal CustomUserDetails principal,
-            @RequestParam String date // yyyy-MM-dd
+            @RequestParam String date 
     ) {
         LocalDate d = LocalDate.parse(date);
         return ResponseEntity.ok(service.breakdownForDate(principal.getId(), d));
@@ -60,7 +60,7 @@ public class StudySessionController {
     @GetMapping("/heatmap")
     public ResponseEntity<?> heatmap(
             @AuthenticationPrincipal CustomUserDetails principal,
-            @RequestParam(required = false) String start, // yyyy-MM-dd
+            @RequestParam(required = false) String start, 
             @RequestParam(required = false) String end
     ) {
         LocalDate now = LocalDate.now();

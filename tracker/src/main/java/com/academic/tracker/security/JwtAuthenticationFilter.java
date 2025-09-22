@@ -31,10 +31,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain) throws ServletException, IOException {
 
-        // Optional debug
-        // System.out.println("Incoming request path: " + request.getServletPath());
-
-        // If you truly want to bypass some paths, adjust this prefix to match your real auth routes
+   
         if (request.getServletPath().startsWith("/auth")) {
             filterChain.doFilter(request, response);
             return;
@@ -49,7 +46,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String token = authHeader.substring(7);
         final String username;
         try {
-            // subject = username (as produced by JwtService)
             username = jwtService.extractUsername(token);
         } catch (ExpiredJwtException e) {
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
@@ -62,7 +58,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
             User user = userRepository.findByUsername(username).orElse(null);
             if (user != null) {
-                // Principal keeps the *username* as username
                 UserDetails userDetails = new CustomUserDetails(user);
 
                 if (jwtService.isTokenValid(token, userDetails)) {

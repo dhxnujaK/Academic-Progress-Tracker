@@ -21,7 +21,6 @@ public class GpaService {
         this.semesterRepo = semesterRepo;
     }
 
-    // Map grades to grade point values (GPV). Unknown grades are excluded (null).
     private static final Map<String, Double> GPV;
     static {
         Map<String, Double> m = new HashMap<>();
@@ -30,7 +29,6 @@ public class GpaService {
         m.put("C+", 2.3); m.put("C", 2.0); m.put("C-", 1.7);
         m.put("D+", 1.3); m.put("D", 1.0);
         m.put("E", 0.0); m.put("F", 0.0);
-        // Grades like S/U/I/H/M are not counted toward GPA
         GPV = Collections.unmodifiableMap(m);
     }
 
@@ -49,7 +47,7 @@ public class GpaService {
         List<Module> modules = moduleRepo.findByUser_Id(userId);
         List<Semester> semesters = semesterRepo.findByUserIdOrderByNumberAsc(userId);
 
-        // SGPA per semester
+
         Map<Long, List<Module>> bySemester = new HashMap<>();
         for (Module m : modules) {
             Semester s = m.getSemester();
@@ -73,7 +71,6 @@ public class GpaService {
             sgpas.add(new SemesterGpa(s.getId(), s.getNumber(), s.getName(), sgpa, finished));
         }
 
-        // CGPA (weighted as specified)
         double cNum = 0.0, cDen = 0.0;
         for (Module m : modules) {
             Double gpv = gpvOf(m.getGrade());
@@ -89,7 +86,7 @@ public class GpaService {
         return new Overview(cgpa, sgpas);
     }
 
-    // DTOs
+   
     public static class SemesterGpa {
         private Long semesterId; private Integer number; private String name; private Double sgpa; private boolean finished;
         public SemesterGpa(Long id, Integer n, String name, Double sgpa, boolean finished) { this.semesterId=id; this.number=n; this.name=name; this.sgpa=sgpa; this.finished=finished; }

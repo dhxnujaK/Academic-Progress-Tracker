@@ -24,11 +24,10 @@ function AddModuleForm({ userId, semester, onModuleAdded }) {
             await axios.post('http://localhost:8080/modules', payload);
             setModule({ ModuleCode: '', ModuleName: '', ModuleCredits: '', ModuleGrade: '' });
             if (onModuleAdded) {
-                onModuleAdded(); // to refresh the module list
+                onModuleAdded(); 
             }
         } catch (error) {
             console.error('Error adding module:', error);
-            // Optionally, set an error state to display to the user
         }
     };
 
@@ -48,8 +47,6 @@ function AddModuleForm({ userId, semester, onModuleAdded }) {
 }
 
 
-// --- Styles ---
-
 const formStyle = {
     padding: '2rem',
     backgroundColor: '#f8f9fa',
@@ -66,7 +63,7 @@ const inputGroupStyle = {
 };
 
 const inputStyle = {
-    flex: 1, // Each input takes equal space in the group
+    flex: 1, 
     padding: '0.8rem 1rem',
     fontSize: '1rem',
     border: '1px solid #dee2e6',
@@ -85,23 +82,7 @@ const buttonStyle = {
     borderRadius: '8px',
     cursor: 'pointer',
     transition: 'background-color 0.2s, transform 0.2s',
-    alignSelf: 'flex-end' // Aligns button to the right
+    alignSelf: 'flex-end' 
 };
-
-
-// Add this to a global stylesheet or a <style> tag for focus/hover effects
-/*
-input:focus {
-    outline: none;
-    border-color: #007bff;
-    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
-}
-
-button:hover {
-    background-color: #0056b3;
-    transform: translateY(-2px);
-}
-*/
-
 
 export default AddModuleForm;

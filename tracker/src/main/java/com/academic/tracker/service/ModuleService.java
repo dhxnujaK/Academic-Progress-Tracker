@@ -64,12 +64,12 @@ public class ModuleService {
             Semester s = semesters.findById(req.getSemesterId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "semesterId not found"));
 
-            // optional safety: ensure semester belongs to same user
+            
             if (!s.getUser().getId().equals(userId)) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "semesterId does not belong to the current user");
             }
 
-            // Set both the relation and the denormalized semester number column
+        
             m.setSemester(s);
             m.setSemesterNumber(s.getNumber());
         }
@@ -96,11 +96,11 @@ public class ModuleService {
 
     @Transactional
     public Module updateModule(Long userId, Long moduleId, ModuleRequest req) {
-        // Load existing module scoped to current user
+       
         Module existing = modules.findByIdAndUser_Id(moduleId, userId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "module not found"));
 
-        // Validate and update code (with duplicate check per user)
+        
         if (req.getCode() != null) {
             String newCode = req.getCode().trim();
             if (newCode.isEmpty()) {
@@ -112,7 +112,7 @@ public class ModuleService {
             existing.setCode(newCode);
         }
 
-        // Validate and update name
+        
         if (req.getName() != null) {
             String newName = req.getName().trim();
             if (newName.isEmpty()) {
@@ -121,14 +121,12 @@ public class ModuleService {
             existing.setName(newName);
         }
 
-        // Validate and update credits
-        // If ModuleRequest.getCredits() is a primitive int, missing JSON will bind to 0.
-        // We treat > 0 as an explicit update; otherwise we leave it unchanged.
+    
         if (req.getCredits() > 0) {
             existing.setCredits(req.getCredits());
         }
 
-        // Update semester if provided
+        
         if (req.getSemesterId() != null) {
             Semester s = semesters.findById(req.getSemesterId())
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "semesterId not found"));
@@ -139,7 +137,6 @@ public class ModuleService {
             existing.setSemesterNumber(s.getNumber());
         }
 
-        // Update grade if provided
         if (req.getGrade() != null) {
             String g = req.getGrade().trim().toUpperCase();
             existing.setGrade(g.isEmpty() ? null : g);

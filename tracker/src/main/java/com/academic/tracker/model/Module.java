@@ -26,9 +26,9 @@ public class Module {
     @Column(nullable = false, length = 255)
     private String name;
 
-    // Map to DB column 'module_credits' (aligns with current schema)
+
     @Column(name = "module_credits", nullable = false)
-    private Integer credits;   // use Integer, not primitive
+    private Integer credits;  
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
@@ -40,11 +40,10 @@ public class Module {
     @JsonIgnore
     private Semester semester;
 
-    // Legacy denormalized column required by DB schema
     @Column(name = "module_semester", nullable = false)
-    private Integer semesterNumber = 0; // default to 0 to satisfy NOT NULL
+    private Integer semesterNumber = 0; 
 
-    // Optional letter grade for GPA calculations (ex: A+, A, A-, B+, ...)
+  
     @Column(name = "module_grade", length = 8)
     private String grade;
 
@@ -97,7 +96,6 @@ public class Module {
             throw new IllegalStateException("Module.credits must be set before saving");
         }
         if (this.semester == null && this.semesterNumber == null) {
-            // keep DB happy when module_semester is NOT NULL
             this.semesterNumber = 0;
         }
     }

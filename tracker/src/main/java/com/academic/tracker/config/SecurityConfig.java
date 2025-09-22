@@ -31,24 +31,23 @@ public class SecurityConfig {
     @Autowired
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    // If you already define an AuthenticationProvider elsewhere, keep this @Autowired;
-    // if not, remove the field and the `.authenticationProvider(...)` line below.
     @Autowired(required = false)
     private AuthenticationProvider authenticationProvider;
 
     @Bean
-    public PasswordEncoder passwordEncoder() {            // prefer interface
+    public PasswordEncoder passwordEncoder() {            
         return new BCryptPasswordEncoder();
     }
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .cors(c -> {})   // ✅ enable CORS at the security layer
+                .cors(c -> {})   
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()                  // preflight
+                        .requestMatchers(HttpMethod.GET, "/uploads/**").permitAll()
                         .requestMatchers("/api/users/login", "/api/users/register").permitAll()
                         .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
@@ -68,7 +67,6 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    // ✅ Allow Authorization header from http://localhost:3000
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();

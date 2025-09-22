@@ -40,7 +40,7 @@ const Hero = () => {
           </div>
         </motion.div>
 
-        {/* Right side: Image/Illustration */}
+        {/* Right side: Image */}
         <motion.div
           initial={{ opacity: 0, x: 40 }}
           animate={{ opacity: 1, x: 0 }}
