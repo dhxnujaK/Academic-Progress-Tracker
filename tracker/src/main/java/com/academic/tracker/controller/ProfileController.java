@@ -7,12 +7,14 @@ import com.academic.tracker.repository.UserRepository;
 import com.academic.tracker.security.CustomUserDetails;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -38,10 +40,10 @@ public class ProfileController {
         User u = userRepo.findById(principal.getId()).orElseThrow();
 
         if (!u.getEmail().equalsIgnoreCase(req.getEmail()) && userRepo.existsByEmail(req.getEmail())) {
-            return ResponseEntity.badRequest().body(null);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Email already in use");
         }
         if (!u.getUsername().equalsIgnoreCase(req.getUsername()) && userRepo.existsByUsername(req.getUsername())) {
-            return ResponseEntity.badRequest().body(null);
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Username already taken");
         }
 
         u.setName(req.getName());
@@ -100,4 +102,3 @@ public class ProfileController {
         return r;
     }
 }
-

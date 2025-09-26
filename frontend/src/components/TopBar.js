@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -9,10 +10,62 @@ const TopBar = () => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const username = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
   const showUserInfo = token && username && showUser;
+  const apiBase = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+  const [avatarUrl, setAvatarUrl] = useState(() =>
+    (typeof window !== 'undefined' && localStorage.getItem('profilePictureUrl')) || ''
+  );
+
+  const normalizeImageUrl = (url) => {
+    if (!url) return '';
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+    return `${apiBase}${url.startsWith('/') ? '' : '/'}${url}`;
+  };
+
+  useEffect(() => {
+    if (!showUserInfo) {
+      setAvatarUrl('');
+      return;
+    }
+
+    const handleAvatarEvent = (event) => {
+      setAvatarUrl(event.detail || '');
+    };
+    window.addEventListener('profile-picture-updated', handleAvatarEvent);
+    return () => window.removeEventListener('profile-picture-updated', handleAvatarEvent);
+  }, [showUserInfo]);
+
+  useEffect(() => {
+    if (!showUserInfo) return;
+    if (avatarUrl) return;
+
+    axios
+      .get(`${apiBase}/api/users/profile`, {
+        headers: { Authorization: `Bearer ${token}` },
+      })
+      .then((res) => {
+        const url = normalizeImageUrl(res.data?.profilePictureUrl);
+        if (typeof window !== 'undefined') {
+          if (url) {
+            localStorage.setItem('profilePictureUrl', url);
+          } else {
+            localStorage.removeItem('profilePictureUrl');
+          }
+          window.dispatchEvent(new CustomEvent('profile-picture-updated', { detail: url || '' }));
+        }
+        setAvatarUrl(url);
+      })
+      .catch(() => {});
+  }, [showUserInfo, avatarUrl, apiBase, token]);
 
   const handleLogout = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('username');
+    localStorage.removeItem('profilePictureUrl');
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('profile-picture-updated', { detail: '' }));
+    }
     navigate('/');
   };
 
@@ -38,10 +91,14 @@ const TopBar = () => {
             <span className="text-sm text-gray-700">Hi, {username}</span>
             <div
               onClick={() => navigate('/profile')}
-              className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-full font-semibold cursor-pointer hover:ring-2 hover:ring-blue-400"
+              className="w-8 h-8 bg-blue-600 text-white flex items-center justify-center rounded-full font-semibold cursor-pointer hover:ring-2 hover:ring-blue-400 overflow-hidden"
               title="Profile"
             >
-              {username?.charAt(0).toUpperCase()}
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" className="w-full h-full object-cover" />
+              ) : (
+                username?.charAt(0).toUpperCase()
+              )}
             </div>
             <button
               onClick={handleLogout}

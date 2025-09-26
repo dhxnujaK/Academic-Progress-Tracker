@@ -14,7 +14,7 @@ const RegisterPage = () => {
     universityRegNumber: '',
     batch: '',
     alYear: '',
-    course: '',
+    degree: '',
     academicYear: '',
     graduationYear: '',
     isActive: true,
@@ -73,7 +73,7 @@ const RegisterPage = () => {
                   ['universityRegNumber', 'University Reg. Number'],
                   ['batch', 'Batch'],
                   ['alYear', 'A/L Year'],
-                  ['course', 'Course'],
+                  ['degree', 'Degree'],
                   ['academicYear', 'Academic Year'],
                   ['graduationYear', 'Graduation Year'],
                 ].map(([name, label, type = 'text']) => (

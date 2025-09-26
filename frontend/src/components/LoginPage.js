@@ -19,14 +19,35 @@ const LoginPage = () => {
     try {
       const res = await axios.post('http://localhost:8080/api/users/login', formData);
       const token = res.data.token;
-      console.log("🪪 Token received from backend:", token);
+      console.log('Token received from backend:', token);
       localStorage.setItem('token', token);
-      console.log("🔐 Token from localStorage:", localStorage.getItem('token'));
+      console.log('Token now in localStorage:', localStorage.getItem('token'));
       localStorage.setItem('username', formData.identifier);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+      try {
+        const profileRes = await axios.get('http://localhost:8080/api/users/profile', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        const apiBase = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+        const rawUrl = profileRes.data?.profilePictureUrl;
+        const normalizedUrl = rawUrl && (rawUrl.startsWith('http://') || rawUrl.startsWith('https://')
+          ? rawUrl
+          : `${apiBase}${rawUrl.startsWith('/') ? '' : '/'}${rawUrl}`);
+        if (typeof window !== 'undefined') {
+          if (normalizedUrl) {
+            localStorage.setItem('profilePictureUrl', normalizedUrl);
+          } else {
+            localStorage.removeItem('profilePictureUrl');
+          }
+          window.dispatchEvent(new CustomEvent('profile-picture-updated', { detail: normalizedUrl || '' }));
+        }
+      } catch (profileErr) {
+        console.error('Failed to load profile for avatar sync', profileErr);
+      }
       navigate('/landing');
     } catch (err) {
-      setError(err.response?.data || 'Login failed');
+      const apiMessage = err.response?.data?.message || err.response?.data?.error;
+      setError(apiMessage || 'Invalid username/email or password.');
     }
   };
 
