@@ -26,14 +26,14 @@ public class ModuleController {
     public ResponseEntity<?> registerModule(@AuthenticationPrincipal CustomUserDetails principal,
                                             @RequestBody @Valid ModuleRequest req) {
         Module saved = service.registerModule(principal.getId(), req);
-        return ResponseEntity.ok(Map.of(
-                "id", saved.getId(),
-                "code", saved.getCode(),
-                "name", saved.getName(),
-                "credits", saved.getCredits(),
-                "semesterId", saved.getSemester() != null ? saved.getSemester().getId() : null,
-                "grade", saved.getGrade()
-        ));
+        Map<String, Object> body = new java.util.LinkedHashMap<>();
+        body.put("id", saved.getId());
+        body.put("code", saved.getCode());
+        body.put("name", saved.getName());
+        body.put("credits", saved.getCredits());
+        body.put("semesterId", saved.getSemester() != null ? saved.getSemester().getId() : null);
+        body.put("grade", saved.getGrade());
+        return ResponseEntity.ok(body);
     }
 
     @GetMapping

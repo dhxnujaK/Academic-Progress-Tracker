@@ -11,7 +11,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import java.time.LocalDate;
 
 @Service
@@ -86,12 +88,45 @@ public class ModuleService {
 
     public List<Module> listModulesForCurrentSemester(Long userId) {
         LocalDate today = LocalDate.now();
-        return semesters.findByUserIdOrderByNumberAsc(userId).stream()
+        List<Semester> userSemesters = semesters.findByUserIdOrderByNumberAsc(userId);
+
+        Set<Long> inspected = new LinkedHashSet<>();
+
+        // 1. Try to use the semester that is actually active today
+        java.util.Optional<Semester> active = userSemesters.stream()
                 .filter(sem -> sem.getStartDate() != null && sem.getEndDate() != null)
                 .filter(sem -> !today.isBefore(sem.getStartDate()) && !today.isAfter(sem.getEndDate()))
-                .findFirst()
-                .map(sem -> modules.findByUser_IdAndSemester_IdOrderByNameAsc(userId, sem.getId()))
-                .orElse(java.util.Collections.emptyList());
+                .findFirst();
+
+        if (active.isPresent()) {
+            Long activeId = active.get().getId();
+            inspected.add(activeId);
+            List<Module> activeModules = modules.findByUser_IdAndSemester_IdOrderByNameAsc(userId, activeId);
+            if (!activeModules.isEmpty()) {
+                return activeModules;
+            }
+        }
+
+        // 2. Fall back to the most recent semester (by number order) that has any modules registered
+        for (int i = userSemesters.size() - 1; i >= 0; i--) {
+            Semester candidate = userSemesters.get(i);
+            if (candidate.getId() == null) continue;
+            if (!inspected.add(candidate.getId())) continue;
+
+            List<Module> candidateModules = modules.findByUser_IdAndSemester_IdOrderByNameAsc(userId, candidate.getId());
+            if (!candidateModules.isEmpty()) {
+                return candidateModules;
+            }
+        }
+
+        // 3. If there are modules without any semester assignment, return those so the UI is not empty
+        List<Module> unassigned = modules.findByUser_IdAndSemesterIsNullOrderByNameAsc(userId);
+        if (!unassigned.isEmpty()) {
+            return unassigned;
+        }
+
+        // 4. Final fallback: return every module for the user (legacy behaviour)
+        return modules.findByUser_Id(userId);
     }
 
     @Transactional

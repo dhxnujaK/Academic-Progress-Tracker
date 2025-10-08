@@ -100,13 +100,39 @@ const ModuleRegistration = () => {
 
     setSubmitting(true);
     try {
-      await axios.post('http://localhost:8080/api/modules', payload, { headers: authHeaders() });
+      const res = await axios.post('http://localhost:8080/api/modules', payload, { headers: authHeaders() });
+      const savedRaw = res?.data || {};
+      const saved = normalizeModule({
+        ...savedRaw,
+        // ensure we keep the fields even if backend omits them in the response map
+        id: savedRaw.id,
+        name: savedRaw.name ?? payload.name,
+        code: savedRaw.code ?? payload.code,
+        credits: savedRaw.credits ?? payload.credits,
+        semesterId: savedRaw.semesterId ?? payload.semesterId ?? '',
+      });
+      if (saved.id != null) {
+        setModules((prev) => {
+          const withoutNew = prev.filter((m) => m.id !== saved.id);
+          const updated = [...withoutNew, saved];
+          updated.sort((a, b) => {
+            const left = (a.name || a.code || '').toString().toLowerCase();
+            const right = (b.name || b.code || '').toString().toLowerCase();
+            return left.localeCompare(right);
+          });
+          return updated;
+        });
+      } else {
+        // fallback to ensure UI updates if the POST response did not contain the new id
+        await fetchModules();
+      }
       setMessage('Module added');
       setName('');
       setCode('');
       setCredits('');
       setSemesterId('');
-      await fetchModules();
+      // refresh in background so any server-side defaults (e.g. semester number) are reflected
+      fetchModules();
 
       // after saving, focus list on that semester so the new item is visible
       if (payload.semesterId != null) {
@@ -271,7 +297,7 @@ const ModuleRegistration = () => {
                       <input
                           id="mod-name"
                           type="text"
-                          placeholder="e.g. Data Structures"
+                          placeholder="Ex: Web Application Development"
                           value={name}
                           onChange={(e) => setName(e.target.value)}
                           required
@@ -287,7 +313,7 @@ const ModuleRegistration = () => {
                         <input
                             id="mod-code"
                             type="text"
-                            placeholder="e.g. CS201"
+                            placeholder="Ex:EE4207"
                             value={code}
                             onChange={(e) => setCode(e.target.value)}
                             required
@@ -297,7 +323,7 @@ const ModuleRegistration = () => {
                         />
                       </div>
                       <p className={`mt-1 text-[11px] ${codeError ? 'text-red-600' : 'text-slate-400'}`}>
-                        {codeError || 'Letters & numbers only. Will auto-uppercase.'}
+                        {codeError}
                       </p>
                     </div>
 
@@ -307,7 +333,7 @@ const ModuleRegistration = () => {
                         <input
                             id="mod-credits"
                             type="number"
-                            placeholder="e.g. 3"
+                            placeholder="Ex:2"
                             value={credits}
                             min={1}
                             onChange={(e) => setCredits(e.target.value)}
@@ -317,7 +343,7 @@ const ModuleRegistration = () => {
                         />
                       </div>
                       <p className={`mt-1 text-[11px] ${creditError ? 'text-red-600' : 'text-slate-400'}`}>
-                        {creditError || 'Minimum 1 credit'}
+                        {creditError}
                       </p>
                     </div>
                   </div>
@@ -399,7 +425,7 @@ const ModuleRegistration = () => {
                     <div className="relative">
                       <input
                           type="text"
-                          placeholder="Search by name, code, credits…"
+                          placeholder="Search by name, code, credits"
                           value={query}
                           onChange={(e) => setQuery(e.target.value)}
                           className="w-full sm:w-72 rounded-lg border px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/50"

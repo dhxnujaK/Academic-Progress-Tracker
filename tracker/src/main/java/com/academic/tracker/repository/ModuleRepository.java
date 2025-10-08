@@ -21,6 +21,8 @@ public interface ModuleRepository extends JpaRepository<Module, Long> {
     List<Module> findByUser_IdAndSemester_IdOrderByNameAsc(Long userId, Long semesterId);
     long countBySemester_Id(Long semesterId);
 
+    List<Module> findByUser_IdAndSemesterIsNullOrderByNameAsc(Long userId);
+
  
     @Modifying
     @Transactional

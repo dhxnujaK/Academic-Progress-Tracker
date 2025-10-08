@@ -233,11 +233,11 @@ return (
                   value={number}
                   onChange={(e) => setNumber(e.target.value)}
                   className={`w-full rounded-lg border px-3 py-2.5 text-sm outline-none focus:ring-2 focus:ring-blue-500/50 ${numError ? 'border-red-300 focus:ring-red-400/50' : ''}`}
-                  placeholder="e.g. 4"
+                  placeholder="Ex:4"
                   required
                 />
                 <p className={`mt-1 text-[11px] ${numError ? 'text-red-600' : 'text-slate-400'}`}>
-                  {numError || 'Use a whole number such as 1, 2, 3…'}
+                  {numError}
                 </p>
               </div>
 
@@ -269,7 +269,7 @@ return (
                     required
                   />
                   <p className={`mt-1 text-[11px] ${dateError ? 'text-red-600' : 'text-slate-400'}`}>
-                    {dateError || 'Must be the same or after the start date.'}
+                    {dateError }
                   </p>
                 </div>
               </div>
