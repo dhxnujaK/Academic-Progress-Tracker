@@ -92,7 +92,7 @@ public class ModuleService {
 
         Set<Long> inspected = new LinkedHashSet<>();
 
-        // 1. Try to use the semester that is actually active today
+
         java.util.Optional<Semester> active = userSemesters.stream()
                 .filter(sem -> sem.getStartDate() != null && sem.getEndDate() != null)
                 .filter(sem -> !today.isBefore(sem.getStartDate()) && !today.isAfter(sem.getEndDate()))
@@ -107,7 +107,7 @@ public class ModuleService {
             }
         }
 
-        // 2. Fall back to the most recent semester (by number order) that has any modules registered
+
         for (int i = userSemesters.size() - 1; i >= 0; i--) {
             Semester candidate = userSemesters.get(i);
             if (candidate.getId() == null) continue;
@@ -119,13 +119,12 @@ public class ModuleService {
             }
         }
 
-        // 3. If there are modules without any semester assignment, return those so the UI is not empty
+
         List<Module> unassigned = modules.findByUser_IdAndSemesterIsNullOrderByNameAsc(userId);
         if (!unassigned.isEmpty()) {
             return unassigned;
         }
 
-        // 4. Final fallback: return every module for the user (legacy behaviour)
         return modules.findByUser_Id(userId);
     }
 

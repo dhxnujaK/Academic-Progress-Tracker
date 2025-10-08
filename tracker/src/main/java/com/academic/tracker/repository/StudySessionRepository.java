@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Repository
 public interface StudySessionRepository extends JpaRepository<StudySession, Long> {
 
-    // Sum of all modules for user on a given day (seconds)
+
     @Query(value = "SELECT COALESCE(SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)),0)\n" +
             "FROM study_session s\n" +
             "WHERE s.user_id = :userId\n" +
@@ -21,7 +21,7 @@ public interface StudySessionRepository extends JpaRepository<StudySession, Long
                                    @Param("start") LocalDateTime start,
                                    @Param("end") LocalDateTime end);
 
-    // Sum for a single module (seconds)
+
     @Query(value = "SELECT COALESCE(SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)),0)\n" +
             "FROM study_session s\n" +
             "WHERE s.user_id = :userId\n" +
@@ -33,7 +33,7 @@ public interface StudySessionRepository extends JpaRepository<StudySession, Long
                                       @Param("start") LocalDateTime start,
                                       @Param("end") LocalDateTime end);
 
-    // Per-module totals for a single day (seconds), including module code and name
+
     @Query(value = "SELECT m.id, m.code, m.name, COALESCE(SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)),0) AS seconds\n" +
             "FROM study_session s\n" +
             "JOIN module m ON m.id = s.module_id\n" +
@@ -44,7 +44,7 @@ public interface StudySessionRepository extends JpaRepository<StudySession, Long
                                                 @Param("start") LocalDateTime start,
                                                 @Param("end") LocalDateTime end);
 
-    // Heatmap totals grouped by date within a range (seconds)
+
     @Query(value = "SELECT DATE(s.start_time) AS d, COALESCE(SUM(TIMESTAMPDIFF(SECOND, s.start_time, s.end_time)),0) AS seconds\n" +
             "FROM study_session s\n" +
             "WHERE s.user_id = :userId AND s.start_time >= :start AND s.end_time <= :end\n" +

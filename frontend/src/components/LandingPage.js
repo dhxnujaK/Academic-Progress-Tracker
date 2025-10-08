@@ -34,6 +34,25 @@ const LandingPage = () => {
   const [cgpa, setCgpa] = useState(null);
   const [finishedSgpas, setFinishedSgpas] = useState([]);
 
+  const quickActions = [
+    {
+      label: 'Register Semester',
+      description: 'Add new semesters to organize your modules and grades.',
+      action: () => navigate('/register-semester'),
+      accent: 'bg-gradient-to-br from-blue-500 to-indigo-500',
+      pillText: 'Semester setup',
+      pillTone: 'bg-blue-50 text-blue-600 border border-blue-100',
+    },
+    {
+      label: 'Register Module',
+      description: 'Add new courses to track study progress.',
+      action: () => navigate('/register-module'),
+      accent: 'bg-gradient-to-br from-emerald-500 to-teal-500',
+      pillText: 'Module manager',
+      pillTone: 'bg-emerald-50 text-emerald-600 border border-emerald-200',
+    },
+  ];
+
   useEffect(() => {
     fetchModules();
   }, []);
@@ -280,7 +299,7 @@ const LandingPage = () => {
                   aria-label="Choose a module to start timing"
                 >
                   <option value="" disabled>
-                    — Select a module from your active semester —
+                    Select a module
                   </option>
                   {modules && modules.length > 0 ? (
                     modules.map((mod) => {
@@ -309,21 +328,41 @@ const LandingPage = () => {
               </div>
 
               {/* Quick Actions */}
-              <div className="rounded-2xl border bg-white/80 backdrop-blur shadow-sm p-6 min-h-[140px]">
-                <h3 className="text-lg font-semibold text-gray-700 mb-3">Quick Actions</h3>
-
-                <button
-                    onClick={() => navigate('/register-semester')}
-                    className="block w-full bg-blue-600 hover:bg-blue-700 text-white text-sm font-semibold py-2 px-4 rounded mb-2 transition"
-                >
-                  Register Semester
-                </button>
-                <button
-                    onClick={() => navigate('/register-module')}
-                    className="block w-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold py-2 px-4 rounded transition"
-                >
-                  Register Module
-                </button>
+              <div className="rounded-2xl border bg-white/80 backdrop-blur shadow-sm p-6 min-h-[160px]">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-semibold text-gray-700">Quick Actions</h3>
+                  <span className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-0.5 text-xs font-medium text-blue-600">
+                    Shortcuts
+                  </span>
+                </div>
+                <div className="space-y-3">
+                  {quickActions.map((qa) => (
+                      <button
+                          key={qa.label}
+                          onClick={qa.action}
+                          className="group relative w-full overflow-hidden rounded-xl border border-slate-200 bg-white px-4 py-4 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-transparent hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                      >
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="flex items-center gap-3">
+                            <span className={`inline-flex h-10 w-10 items-center justify-center rounded-full text-sm font-semibold text-white shadow-sm ${qa.accent}`}>
+                              {qa.label.split(' ')[1]?.charAt(0) ?? '•'}
+                            </span>
+                            <div className="space-y-0.5">
+                              <p className="text-sm font-semibold text-slate-900">{qa.label}</p>
+                              <p className="text-xs text-slate-500">{qa.description}</p>
+                            </div>
+                          </div>
+                          <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-medium ${qa.pillTone}`}>
+                            {qa.pillText}
+                          </span>
+                        </div>
+                        <span className="pointer-events-none absolute inset-0 opacity-0 transition-opacity duration-200 group-hover:opacity-100"
+                              aria-hidden="true">
+                          <span className="absolute inset-0 bg-gradient-to-br from-blue-500/10 via-transparent to-transparent" />
+                        </span>
+                      </button>
+                  ))}
+                </div>
               </div>
             </div>
 

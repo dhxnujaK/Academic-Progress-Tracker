@@ -146,7 +146,7 @@ public class SemesterService {
     }
 
     private void ensureNoOverlap(Long userId, LocalDate start, LocalDate end, Long excludeId) {
-        if (start == null || end == null) return; // let bean validation handle null if required
+        if (start == null || end == null) return;
         List<Semester> semesters = semesterRepo.findByUserIdOrderByNumberAsc(userId);
         for (Semester s : semesters) {
             if (excludeId != null && Objects.equals(s.getId(), excludeId)) continue;
@@ -161,7 +161,7 @@ public class SemesterService {
     }
 
     private void validateDates(LocalDate start, LocalDate end) {
-        if (start == null || end == null) return; // let DB/bean validation handle nulls if required
+        if (start == null || end == null) return;
         if (end.isBefore(start)) {
             throw new IllegalArgumentException("End date cannot be before start date");
         }
