@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import api, { resolveApiPath } from '../services/api';
 
 const UserProfilePage = () => {
   const fileInputRef = useRef(null);
@@ -14,16 +14,8 @@ const UserProfilePage = () => {
   const [message, setMessage] = useState({ text: '', tone: '' });
   const [uploading, setUploading] = useState(false);
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-  const headers = token ? { Authorization: `Bearer ${token}` } : {};
-  const apiBase = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
-
   const normalizeImageUrl = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return `${apiBase}${url.startsWith('/') ? '' : '/'}${url}`;
+    return resolveApiPath(url);
   };
 
   const broadcastProfilePicture = (url) => {
@@ -36,11 +28,14 @@ const UserProfilePage = () => {
     window.dispatchEvent(new CustomEvent('profile-picture-updated', { detail: url || '' }));
   };
 
-  useEffect(() => { fetchProfile(); }, []);
+  useEffect(() => {
+    fetchProfile();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const fetchProfile = async () => {
     try {
-      const res = await axios.get(`${apiBase}/api/users/profile`, { headers });
+      const res = await api.get('/users/profile');
       const p = res.data || {};
       const normalizedPicture = normalizeImageUrl(p.profilePictureUrl);
       setProfile({
@@ -65,7 +60,7 @@ const UserProfilePage = () => {
     form.append('file', file);
     setUploading(true);
     try {
-      const res = await axios.post(`${apiBase}/api/users/profile/picture`, form, { headers, withCredentials: false });
+      const res = await api.post('/users/profile/picture', form, { withCredentials: false });
       const updatedUrl = normalizeImageUrl(res.data?.profilePictureUrl);
       if (updatedUrl) {
         setProfile((p) => ({ ...p, profilePictureUrl: updatedUrl }));
@@ -88,7 +83,7 @@ const UserProfilePage = () => {
       return;
     }
     try {
-      await axios.put(`${apiBase}/api/users/profile`, {
+      await api.put('/users/profile', {
         name: profile.name,
         email: profile.email,
         username: profile.username,
@@ -101,7 +96,7 @@ const UserProfilePage = () => {
         alYear: profile.alYear,
         telephone: profile.telephone,
         dob: profile.dob || null
-      }, { headers });
+      });
       setMessage({ text: 'Profile updated successfully.', tone: 'success' });
     } catch (e) {
       console.error(e);

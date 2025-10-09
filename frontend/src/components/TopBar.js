@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import axios from 'axios';
+import api, { apiOrigin, resolveApiPath } from '../services/api';
 
 const TopBar = () => {
   const navigate = useNavigate();
@@ -10,17 +10,13 @@ const TopBar = () => {
   const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
   const username = typeof window !== 'undefined' ? localStorage.getItem('username') : null;
   const showUserInfo = token && username && showUser;
-  const apiBase = process.env.REACT_APP_API_BASE_URL || 'http://localhost:8080';
+  const apiBase = apiOrigin;
   const [avatarUrl, setAvatarUrl] = useState(() =>
     (typeof window !== 'undefined' && localStorage.getItem('profilePictureUrl')) || ''
   );
 
   const normalizeImageUrl = (url) => {
-    if (!url) return '';
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
-    }
-    return `${apiBase}${url.startsWith('/') ? '' : '/'}${url}`;
+    return resolveApiPath(url);
   };
 
   useEffect(() => {
@@ -40,10 +36,8 @@ const TopBar = () => {
     if (!showUserInfo) return;
     if (avatarUrl) return;
 
-    axios
-      .get(`${apiBase}/api/users/profile`, {
-        headers: { Authorization: `Bearer ${token}` },
-      })
+    api
+      .get('/users/profile')
       .then((res) => {
         const url = normalizeImageUrl(res.data?.profilePictureUrl);
         if (typeof window !== 'undefined') {

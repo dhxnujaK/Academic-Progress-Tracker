@@ -1,21 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { Link } from 'react-router-dom';
 import TopBar from './TopBar';
+import api from '../services/api';
 
 const GradeManager = () => {
-  const navigate = useNavigate();
   const [semesters, setSemesters] = useState([]);
   const [semesterId, setSemesterId] = useState('');
   const [modules, setModules] = useState([]);
   const [loading, setLoading] = useState(false);
-  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
-
-  const authHeaders = token ? { Authorization: `Bearer ${token}` } : {};
 
   const fetchSemesters = async () => {
     try {
-      const res = await axios.get('http://localhost:8080/api/semesters', { headers: authHeaders });
+      const res = await api.get('/semesters');
       setSemesters(res.data || []);
     } catch (e) {
       console.error('Failed to load semesters', e);
@@ -26,7 +22,7 @@ const GradeManager = () => {
     if (!semId) return;
     try {
       setLoading(true);
-      const res = await axios.get('http://localhost:8080/api/modules', { headers: authHeaders, params: { semesterId: semId } });
+      const res = await api.get('/modules', { params: { semesterId: semId } });
       setModules(res.data || []);
     } catch (e) {
       console.error('Failed to load modules', e);
@@ -37,7 +33,7 @@ const GradeManager = () => {
 
   const updateGrade = async (moduleId, grade) => {
     try {
-      await axios.put(`http://localhost:8080/api/modules/${moduleId}`, { grade }, { headers: authHeaders });
+      await api.put(`/modules/${moduleId}`, { grade });
       await fetchModules(semesterId);
     } catch (e) {
       console.error('Failed to update grade', e);

@@ -22,7 +22,6 @@ const SemesterRegistration = () => {
   const [message, setMessage] = useState('');
   const [error, setError] = useState('');
   const [semesters, setSemesters] = useState([]);
-  const [loading, setLoading] = useState(false);
 
   // edit & delete controls
   const [editing, setEditing] = useState(null); // { id, number, startDate, endDate } | null
@@ -47,15 +46,11 @@ const SemesterRegistration = () => {
 
   const loadSemesters = async () => {
     try {
-      setLoading(true);
       const res = await api.get('/semesters');
       setSemesters(Array.isArray(res.data) ? res.data : []);
     } catch (e) {
       console.error('Failed to fetch semesters', e);
       setError(getErrorMessage(e));
-    }
-    finally {
-      setLoading(false);
     }
   };
 
@@ -324,12 +319,9 @@ return (
                                 Semester {s.number}
                               </h4>
                               <span
-                                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${statusFor(
-                                      s.startDate,
-                                      s.endDate
-                                  ).tone}`}
+                                  className={`inline-flex items-center rounded-full border px-2 py-0.5 text-xs font-medium ${stat.tone}`}
                               >
-                                {statusFor(s.startDate, s.endDate).label}
+                                {stat.label}
                               </span>
                             </div>
 

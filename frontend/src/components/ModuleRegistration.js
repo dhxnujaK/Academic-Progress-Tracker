@@ -1,8 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
-import { useCallback } from 'react';
 import TopBar from './TopBar';
 import { Link } from 'react-router-dom';
+import api from '../services/api';
 
 const ModuleRegistration = () => {
   // form state
@@ -33,12 +32,6 @@ const ModuleRegistration = () => {
   const [savingEdit, setSavingEdit] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
-  // auth headers (kept local in case interceptor is not mounted)
-  const authHeaders = () => {
-    const token = localStorage.getItem('token');
-    return token ? { Authorization: `Bearer ${token}` } : {};
-  };
-
   // normalize varying backend shapes so the UI can filter reliably
   const normalizeModule = (m) => ({
     ...m,
@@ -65,7 +58,7 @@ const ModuleRegistration = () => {
   const fetchSemesters = async () => {
     try {
       setLoadingSemesters(true);
-      const res = await axios.get('http://localhost:8080/api/semesters', { headers: authHeaders() });
+      const res = await api.get('/semesters');
       setSemesters(res.data || []);
     } catch (err) {
       console.error('Error fetching semesters:', err);
@@ -77,7 +70,7 @@ const ModuleRegistration = () => {
   const fetchModules = async () => {
     try {
       setLoadingModules(true);
-      const res = await axios.get('http://localhost:8080/api/modules', { headers: authHeaders() });
+      const res = await api.get('/modules');
       setModules((res.data || []).map(normalizeModule));
     } catch (err) {
       console.error('Error fetching modules:', err);
@@ -100,7 +93,7 @@ const ModuleRegistration = () => {
 
     setSubmitting(true);
     try {
-      const res = await axios.post('http://localhost:8080/api/modules', payload, { headers: authHeaders() });
+      const res = await api.post('/modules', payload);
       const savedRaw = res?.data || {};
       const saved = normalizeModule({
         ...savedRaw,
@@ -170,23 +163,6 @@ const ModuleRegistration = () => {
   const currentSemName = (id) =>
       semesters.find((s) => String(s.id) === String(id))?.name ?? '—';
 
-  const fmtDate = (iso) => {
-    if (!iso) return '—';
-    try {
-      const d = new Date(iso);
-      return d.toLocaleDateString(undefined, { day: '2-digit', month: 'short', year: 'numeric' });
-    } catch {
-      return iso;
-    }
-  };
-  const statusFor = (start, end) => {
-    const now = new Date();
-    const s = start ? new Date(start) : null;
-    const e = end ? new Date(end) : null;
-    if (s && e && s <= now && now <= e) return { label: 'Active', tone: 'bg-emerald-50 text-emerald-700 border border-emerald-200' };
-    if (e && e < now) return { label: 'Completed', tone: 'bg-slate-100 text-slate-700 border' };
-    return { label: 'Upcoming', tone: 'bg-blue-50 text-blue-700 border border-blue-200' };
-  };
 
   // Edit/Delete handlers
   const openEdit = (m) => setEditing({ ...m });
@@ -204,7 +180,7 @@ const ModuleRegistration = () => {
         credits: Number(editing.credits),
         semesterId: editing.semesterId ? Number(editing.semesterId) : null,
       };
-      await axios.put(`http://localhost:8080/api/modules/${editing.id}`, payload, { headers: authHeaders() });
+      await api.put(`/modules/${editing.id}`, payload);
       setMessage('Module updated');
       await fetchModules();
       closeEdit();
@@ -226,7 +202,7 @@ const ModuleRegistration = () => {
   const confirmDelete = async () => {
     if (!deletingId) return;
     try {
-      await axios.delete(`http://localhost:8080/api/modules/${deletingId}`, { headers: authHeaders() });
+      await api.delete(`/modules/${deletingId}`);
       setModules((prev) => prev.filter((m) => m.id !== deletingId));
       setMessage('Module deleted');
     } catch (err) {

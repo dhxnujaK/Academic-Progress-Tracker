@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import TopBar from './TopBar';
+import api from '../services/api';
 
 const RegisterPage = () => {
   const navigate = useNavigate();
@@ -32,7 +32,7 @@ const RegisterPage = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:8080/api/users/register', formData);
+      const res = await api.post('/users/register', formData);
       setSuccess(res.data);
       setError('');
       setTimeout(() => navigate('/login'), 1000);

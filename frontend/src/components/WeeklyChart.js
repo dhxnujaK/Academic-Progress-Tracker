@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import axios from 'axios';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 import { AnimatePresence, motion } from 'framer-motion';
+import api from '../services/api';
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
@@ -34,11 +34,9 @@ const WeeklyChart = () => {
 
   const fetchWeek = async (startDate) => {
     try {
-      const token = localStorage.getItem('token');
       const start = startOfWeekMon(startDate || new Date());
       const end = new Date(start); end.setDate(start.getDate() + 6);
-      const res = await axios.get('http://localhost:8080/api/study-sessions/heatmap', {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await api.get('/study-sessions/heatmap', {
         params: { start: toISO(start), end: toISO(end) }
       });
       const secMap = res.data || {};

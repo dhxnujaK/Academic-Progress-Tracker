@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import CalendarView from './CalendarView';
 import TopBar from './TopBar';
 import WeeklyChart from './WeeklyChart';
+import api from '../services/api';
 
 const LandingPage = () => {
   const navigate = useNavigate();
@@ -61,10 +61,7 @@ const LandingPage = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const token = localStorage.getItem('token');
-        const res = await axios.get('http://localhost:8080/api/grades/overview', {
-          headers: { Authorization: `Bearer ${token}` }
-        });
+        const res = await api.get('/grades/overview');
         setCgpa(res.data?.cgpa ?? null);
         const list = Array.isArray(res.data?.semesters) ? res.data.semesters : [];
         setFinishedSgpas(list.filter(s => s.finished && s.sgpa != null));
@@ -77,10 +74,7 @@ const LandingPage = () => {
 
   const fetchModules = async () => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:8080/api/modules/current-semester', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
+      const res = await api.get('/modules/current-semester');
       setModules(res.data);
     } catch (err) {
       console.error('Error fetching modules for active semester:', err);
@@ -91,10 +85,8 @@ const LandingPage = () => {
 
   const fetchTodaySummary = async (moduleId) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:8080/api/study-sessions/today-summary', {
-        headers: { Authorization: `Bearer ${token}` },
-        params: moduleId ? { moduleId } : {}
+      const res = await api.get('/study-sessions/today-summary', {
+        params: moduleId ? { moduleId } : undefined
       });
       setModuleToday(res.data.moduleSeconds || 0);
       setAllToday(res.data.allSeconds || 0);
@@ -112,9 +104,7 @@ const LandingPage = () => {
 
   const fetchDayBreakdown = async (dateISO) => {
     try {
-      const token = localStorage.getItem('token');
-      const res = await axios.get('http://localhost:8080/api/study-sessions/by-day', {
-        headers: { Authorization: `Bearer ${token}` },
+      const res = await api.get('/study-sessions/by-day', {
         params: { date: dateISO }
       });
       setDayBreakdown(res.data || { date: dateISO, totals: [], allSeconds: 0 });
@@ -144,18 +134,13 @@ const LandingPage = () => {
   const stopTimer = async () => {
     clearInterval(intervalId);
     const endTime = new Date();
-    const token = localStorage.getItem('token');
     setIsSaving(true);
     try {
-      await axios.post(
-        'http://localhost:8080/api/study-sessions',
-        {
-          moduleId: selectedModuleId,
-          startTime: startTime?.toISOString(),
-          endTime: endTime.toISOString()
-        },
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      await api.post('/study-sessions', {
+        moduleId: selectedModuleId,
+        startTime: startTime?.toISOString(),
+        endTime: endTime.toISOString()
+      });
       // Optimistically add this session to local totals so the next start continues smoothly
       setModuleToday((prev) => prev + elapsed);
       setAllToday((prev) => prev + elapsed);
@@ -190,10 +175,8 @@ const LandingPage = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const token = localStorage.getItem('token');
         const d = toLocalDateISO(selectedDate);
-        const res = await axios.get('http://localhost:8080/api/study-sessions/by-day', {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await api.get('/study-sessions/by-day', {
           params: { date: d }
         });
         setDayBreakdown(res.data || { date: d, totals: [], allSeconds: 0 });
@@ -209,12 +192,10 @@ const LandingPage = () => {
   useEffect(() => {
     const load = async () => {
       try {
-        const token = localStorage.getItem('token');
         const now = new Date();
         const start = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().slice(0, 10);
         const end = new Date(now.getFullYear(), now.getMonth() + 1, 0).toISOString().slice(0, 10);
-        const res = await axios.get('http://localhost:8080/api/study-sessions/heatmap', {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await api.get('/study-sessions/heatmap', {
           params: { start, end }
         });
         const mins = Object.fromEntries(Object.entries(res.data || {}).map(([k, v]) => [k, Math.round((v || 0) / 60)]));

@@ -1,18 +1,34 @@
 import axios from "axios";
 
-const API_BASE =
-    // Vite
+const sanitizeBase = (value) => {
+    if (!value || typeof value !== "string") return null;
+    return value.replace(/\s+/g, "").replace(/\/+$/, "");
+};
+
+const detectedBase =
     (typeof import.meta !== "undefined" &&
         import.meta.env &&
-        import.meta.env.VITE_API_BASE) ||
-    // CRA
+        (import.meta.env.VITE_API_BASE_URL || import.meta.env.VITE_API_BASE)) ||
     (typeof process !== "undefined" &&
         process.env &&
-        process.env.REACT_APP_API_BASE) ||
-    // Default
-    "http://localhost:8080/api";
+        (process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_BASE)) ||
+    null;
 
-const api = axios.create({ baseURL: API_BASE });
+const API_ORIGIN = sanitizeBase(detectedBase) || "http://localhost:8080";
+const API_BASE_URL = `${API_ORIGIN}/api`;
+
+export const apiOrigin = API_ORIGIN;
+export const apiBaseUrl = API_BASE_URL;
+
+export const resolveApiPath = (path = "") => {
+    if (!path) return "";
+    if (path.startsWith("http://") || path.startsWith("https://")) {
+        return path;
+    }
+    return `${API_ORIGIN}${path.startsWith("/") ? "" : "/"}${path}`;
+};
+
+const api = axios.create({ baseURL: API_BASE_URL });
 
 api.interceptors.request.use((config) => {
     const token = localStorage.getItem("token");
