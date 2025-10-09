@@ -13,6 +13,14 @@ import org.springframework.http.HttpStatus;
 import java.util.NoSuchElementException;
 
 @RestController
+@CrossOrigin(
+        origins = {
+                "https://trackmateacademictracker.netlify.app",
+                "http://localhost:3000",
+                "http://localhost:5173"
+        },
+        allowCredentials = "true"
+)
 @RequestMapping("/api/semesters")
 public class SemesterController {
 

@@ -14,6 +14,14 @@ import java.time.LocalDate;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(
+        origins = {
+                "https://trackmateacademictracker.netlify.app",
+                "http://localhost:3000",
+                "http://localhost:5173"
+        },
+        allowCredentials = "true"
+)
 @RequestMapping("/api/study-sessions")
 public class StudySessionController {
 

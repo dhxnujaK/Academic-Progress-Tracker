@@ -4,11 +4,17 @@ import com.academic.tracker.security.CustomUserDetails;
 import com.academic.tracker.service.GpaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@CrossOrigin(
+        origins = {
+                "https://trackmateacademictracker.netlify.app",
+                "http://localhost:3000",
+                "http://localhost:5173"
+        },
+        allowCredentials = "true"
+)
 @RequestMapping("/api/grades")
 public class GpaController {
     private final GpaService gpa;
@@ -19,4 +25,3 @@ public class GpaController {
         return ResponseEntity.ok(gpa.overview(principal.getId()));
     }
 }
-

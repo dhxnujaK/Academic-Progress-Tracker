@@ -20,7 +20,8 @@ public class CorsConfig {
                                 "https://trackmateacademictracker.netlify.app"
                         )
                         .allowedMethods("*")
-                        .allowedHeaders("*");
+                        .allowedHeaders("*")
+                        .allowCredentials(true);
             }
         };
     }

@@ -7,6 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@CrossOrigin(
+        origins = {
+                "https://trackmateacademictracker.netlify.app",
+                "http://localhost:3000",
+                "http://localhost:5173"
+        },
+        allowCredentials = "true"
+)
 @RequestMapping("/users")
 public class UserController {
 

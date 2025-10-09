@@ -15,7 +15,14 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 @RestController
 @RequestMapping("/api/users")
-@CrossOrigin(origins = "*")
+@CrossOrigin(
+        origins = {
+                "https://trackmateacademictracker.netlify.app",
+                "http://localhost:3000",
+                "http://localhost:5173"
+        },
+        allowCredentials = "true"
+)
 public class AuthController {
 
     @Autowired

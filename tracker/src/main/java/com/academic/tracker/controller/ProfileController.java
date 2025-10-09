@@ -20,6 +20,14 @@ import java.io.IOException;
 import java.nio.file.*;
 
 @RestController
+@CrossOrigin(
+        origins = {
+                "https://trackmateacademictracker.netlify.app",
+                "http://localhost:3000",
+                "http://localhost:5173"
+        },
+        allowCredentials = "true"
+)
 @RequestMapping("/api/users/profile")
 public class ProfileController {
     private final UserRepository userRepo;

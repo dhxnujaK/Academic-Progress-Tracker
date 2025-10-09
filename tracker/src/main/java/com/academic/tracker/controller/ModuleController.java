@@ -13,6 +13,14 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
+@CrossOrigin(
+        origins = {
+                "https://trackmateacademictracker.netlify.app",
+                "http://localhost:3000",
+                "http://localhost:5173"
+        },
+        allowCredentials = "true"
+)
 @RequestMapping("/api/modules")
 public class ModuleController {
 
