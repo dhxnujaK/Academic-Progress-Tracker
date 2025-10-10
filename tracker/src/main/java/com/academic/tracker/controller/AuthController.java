@@ -21,6 +21,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
                 "http://localhost:3000",
                 "http://localhost:5173"
         },
+        originPatterns = {
+                "https://*.netlify.app"
+        },
         allowCredentials = "true"
 )
 public class AuthController {

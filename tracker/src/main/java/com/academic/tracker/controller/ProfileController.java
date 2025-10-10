@@ -26,6 +26,9 @@ import java.nio.file.*;
                 "http://localhost:3000",
                 "http://localhost:5173"
         },
+        originPatterns = {
+                "https://*.netlify.app"
+        },
         allowCredentials = "true"
 )
 @RequestMapping("/api/users/profile")

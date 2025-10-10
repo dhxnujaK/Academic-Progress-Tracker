@@ -13,6 +13,9 @@ import org.springframework.web.bind.annotation.*;
                 "http://localhost:3000",
                 "http://localhost:5173"
         },
+        originPatterns = {
+                "https://*.netlify.app"
+        },
         allowCredentials = "true"
 )
 @RequestMapping("/api/grades")
