@@ -14,7 +14,19 @@ const detectedBase =
         (process.env.REACT_APP_API_BASE_URL || process.env.REACT_APP_API_BASE)) ||
     null;
 
-const API_ORIGIN = sanitizeBase(detectedBase) || "http://localhost:8080";
+const envBase = sanitizeBase(detectedBase);
+
+const deploymentBase = (() => {
+    if (typeof window === "undefined") return null;
+    const host = window.location.hostname;
+    if (!host) return null;
+    if (host.includes("netlify.app")) {
+        return "https://trackmate-b8ae76ec6b01.herokuapp.com";
+    }
+    return null;
+})();
+
+const API_ORIGIN = envBase || deploymentBase || "http://localhost:8080";
 const API_BASE_URL = `${API_ORIGIN}/api`;
 
 export const apiOrigin = API_ORIGIN;
