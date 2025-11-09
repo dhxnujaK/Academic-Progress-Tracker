@@ -58,7 +58,7 @@ const RegisterPage = () => {
           <div className="bg-white rounded-2xl shadow-2xl overflow-hidden grid md:grid-cols-2 w-full max-w-5xl">
             {/* Left: Welcome message */}
             <div className="bg-blue-600 text-white p-10 flex flex-col justify-center">
-              <h2 className="text-3xl font-bold mb-4">Join TrackMate 🎓</h2>
+              <h2 className="text-3xl font-bold mb-4">Join TrackMate </h2>
               <p className="text-sm leading-relaxed">
                 Track your academic modules, study sessions, and GPA with confidence.
                 Your journey to better learning starts here.

@@ -48,10 +48,7 @@ api.interceptors.request.use((config) => {
         config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // These headers are optional; keep them only if you need to defeat caches
-    // config.headers["Cache-Control"] = "no-cache";
-    // config.headers["Pragma"] = "no-cache";
-    // config.headers["Expires"] = "0";
+ 
 
     return config;
 });

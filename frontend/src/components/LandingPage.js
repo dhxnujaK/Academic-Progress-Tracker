@@ -141,7 +141,7 @@ const LandingPage = () => {
         startTime: startTime?.toISOString(),
         endTime: endTime.toISOString()
       });
-      // Optimistically add this session to local totals so the next start continues smoothly
+
       setModuleToday((prev) => prev + elapsed);
       setAllToday((prev) => prev + elapsed);
       // Refresh daily totals after persisting (reconcile with backend)
@@ -151,7 +151,7 @@ const LandingPage = () => {
       fetchDayBreakdown(dISO);
     } catch (err) {
       console.error('Failed to save study session:', err);
-      // optional: show a toast/alert
+
     } finally {
       setIsSaving(false);
       setStartTime(null);
@@ -213,10 +213,10 @@ const LandingPage = () => {
       setModuleToday(0);
       fetchTodaySummary(null);
     }
-    // When module changes, reset bases so we capture fresh when starting
+
     setBaseModuleToday(0);
     setBaseAllToday(0);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [selectedModuleId]);
 
   return (

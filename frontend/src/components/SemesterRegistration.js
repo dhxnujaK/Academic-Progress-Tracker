@@ -9,9 +9,9 @@ const getErrorMessage = (err) => {
   if (!err) return 'Something went wrong. Try again.';
   const data = err.response?.data;
   if (typeof data === 'string') return data;
-  if (data?.message) return data.message; // Spring ProblemDetail or our custom error
-  if (data?.error) return data.error;     // Fallback to generic error field
-  if (err.message) return err.message;    // Network or Axios message
+  if (data?.message) return data.message; 
+  if (data?.error) return data.error;     
+  if (err.message) return err.message;    
   return 'Something went wrong. Try again.';
 };
 
@@ -24,7 +24,7 @@ const SemesterRegistration = () => {
   const [semesters, setSemesters] = useState([]);
 
   // edit & delete controls
-  const [editing, setEditing] = useState(null); // { id, number, startDate, endDate } | null
+  const [editing, setEditing] = useState(null); 
   const [editNumber, setEditNumber] = useState('');
   const [editStartDate, setEditStartDate] = useState('');
   const [editEndDate, setEditEndDate] = useState('');

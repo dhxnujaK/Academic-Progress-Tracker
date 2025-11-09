@@ -73,7 +73,7 @@ const TopBar = () => {
             if (token) {
               navigate('/landing');
             } else {
-              navigate('/login'); // end to login if not logged in
+              navigate('/login'); 
             }
           }}
         >

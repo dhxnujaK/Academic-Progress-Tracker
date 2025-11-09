@@ -21,23 +21,20 @@ const ModuleRegistration = () => {
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState(null);
   const [query, setQuery] = useState('');
-  const [viewSemesterId, setViewSemesterId] = useState(''); // '' = All semesters in list
-
+  const [viewSemesterId, setViewSemesterId] = useState(''); 
   // simple client-side validation hints
   const creditError = credits !== '' && Number(credits) < 1 ? 'Credits must be at least 1' : '';
   const codeError = code && !/^[A-Za-z0-9-_.]+$/.test(code) ? 'Use letters, numbers, dash, underscore, or dot' : '';
 
   // Edit/Delete state
-  const [editing, setEditing] = useState(null); // {id, name, code, credits, semesterId} or null
+  const [editing, setEditing] = useState(null); 
   const [savingEdit, setSavingEdit] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
 
   // normalize varying backend shapes so the UI can filter reliably
   const normalizeModule = (m) => ({
     ...m,
-    // credits can arrive as credits / moduleCredits / module_credits
     credits: m.credits ?? m.moduleCredits ?? m.module_credits ?? 0,
-    // semester id can arrive in many shapes; flatten to `semesterId`
     semesterId:
         m.semesterId ??
         m.semester?.id ??
@@ -52,7 +49,7 @@ const ModuleRegistration = () => {
       await Promise.all([fetchSemesters(), fetchModules()]);
     };
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, []);
 
   const fetchSemesters = async () => {
@@ -97,7 +94,6 @@ const ModuleRegistration = () => {
       const savedRaw = res?.data || {};
       const saved = normalizeModule({
         ...savedRaw,
-        // ensure we keep the fields even if backend omits them in the response map
         id: savedRaw.id,
         name: savedRaw.name ?? payload.name,
         code: savedRaw.code ?? payload.code,
@@ -116,7 +112,6 @@ const ModuleRegistration = () => {
           return updated;
         });
       } else {
-        // fallback to ensure UI updates if the POST response did not contain the new id
         await fetchModules();
       }
       setMessage('Module added');
@@ -124,10 +119,8 @@ const ModuleRegistration = () => {
       setCode('');
       setCredits('');
       setSemesterId('');
-      // refresh in background so any server-side defaults (e.g. semester number) are reflected
       fetchModules();
 
-      // after saving, focus list on that semester so the new item is visible
       if (payload.semesterId != null) {
         setViewSemesterId(String(payload.semesterId));
       }
@@ -138,7 +131,6 @@ const ModuleRegistration = () => {
       setMessage(data?.message || 'Module registration failed');
     } finally {
       setSubmitting(false);
-      // auto-hide message
       setTimeout(() => setMessage(''), 2400);
     }
   };
@@ -146,7 +138,6 @@ const ModuleRegistration = () => {
   const filteredModules = useMemo(() => {
     let base = modules;
 
-    // filter by selected semester for the LIST view ('' means all)
     if (viewSemesterId !== '') {
       base = base.filter((m) => String(m.semesterId) === String(viewSemesterId));
     }
@@ -332,7 +323,6 @@ const ModuleRegistration = () => {
                           value={semesterId}
                           onChange={(e) => {
                             setSemesterId(e.target.value);
-                            // keep the list on the same semester the user is adding to
                             setViewSemesterId(e.target.value);
                           }}
                           required

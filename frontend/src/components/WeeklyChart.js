@@ -5,10 +5,9 @@ import api from '../services/api';
 
 const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-// same palette logic as CalendarView (hsl(221,85%, L%)) with darkest at >= 12h (720 min)
 const fillForMinutes = (minutes, dailyGoalMinutes = 720) => {
   const ratio = Math.min(Math.max(minutes / dailyGoalMinutes, 0), 1);
-  const lightness = 95 - ratio * 50; // 95% -> 45%
+  const lightness = 95 - ratio * 50; 
   return `hsl(221, 85%, ${lightness}%)`;
 };
 
@@ -21,7 +20,7 @@ const toISO = (d) => {
 
 const startOfWeekMon = (date) => {
   const d = new Date(date);
-  const day = (d.getDay() + 6) % 7; // Mon=0..Sun=6
+  const day = (d.getDay() + 6) % 7; 
   d.setDate(d.getDate() - day);
   d.setHours(0, 0, 0, 0);
   return d;
@@ -30,7 +29,7 @@ const startOfWeekMon = (date) => {
 const WeeklyChart = () => {
   const [weekly, setWeekly] = useState(() => days.map((day) => ({ day, minutes: 0 })));
   const [weekStart, setWeekStart] = useState(() => startOfWeekMon(new Date()));
-  const [direction, setDirection] = useState(0); // -1 prev, +1 next
+  const [direction, setDirection] = useState(0); 
 
   const fetchWeek = async (startDate) => {
     try {
@@ -48,7 +47,6 @@ const WeeklyChart = () => {
       });
       setWeekly(data);
     } catch (e) {
-      // keep zeros on failure
     }
   };
 
@@ -66,7 +64,6 @@ const WeeklyChart = () => {
   };
   const goToThisWeek = () => {
     const nowStart = startOfWeekMon(new Date());
-    // Choose slide direction based on relative position
     setDirection(nowStart > weekStart ? 1 : -1);
     setWeekStart(nowStart);
   };
@@ -80,10 +77,9 @@ const WeeklyChart = () => {
   }, [weekStart]);
 
   const maxMinutes = useMemo(() => weekly.reduce((m, d) => Math.max(m, d.minutes), 0), [weekly]);
-  const useHours = maxMinutes >= 90; // show minutes when very low
+  const useHours = maxMinutes >= 90; 
   const ticks = useMemo(() => {
     if (!useHours) {
-      // integer minute ticks: choose nice step (e.g., 10, 20, 30)
       const max = Math.max(30, Math.ceil(maxMinutes / 10) * 10);
       const step = max <= 60 ? 10 : 20;
       const arr = [];
